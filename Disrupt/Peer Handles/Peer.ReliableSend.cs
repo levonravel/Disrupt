@@ -79,6 +79,7 @@ namespace RavelTek.Disrupt
                 senderBuffer = 0;
                 for (int i = 0; i < TotalBufferSize; i++)
                 {
+                    client.Recycle(sendBuffer[i]);
                     sendBuffer[i] = null;
                     sendBufferFlags[i] = !sendBufferFlags[i];
                 }
@@ -87,6 +88,7 @@ namespace RavelTek.Disrupt
             {
                 for (int i = oldLowerBound; i != senderLowerBound; i = (i + 1) % TotalBufferSize)
                 {
+                    client.Recycle(sendBuffer[i]);
                     sendBuffer[i] = null;
                     sendBufferFlags[i] = !sendBufferFlags[i];
                 }
