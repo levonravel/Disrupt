@@ -27,10 +27,8 @@ namespace RavelTek.Disrupt {
         NetBridge = value;
       }
     }
-
-    readonly Data _data = new Data();
     string _method = "";
-    readonly Stack<Data> _d = new Stack<Data>();
+    readonly Queue<Data> _d = new Queue<Data>();
 
     public enum DataType {
         Boolean,
@@ -69,12 +67,13 @@ namespace RavelTek.Disrupt {
         QuaternionA
       }
 
-    public class Data {
+    public struct Data 
+    {
       public DataType dataType;
-      public Ts val = new Ts();
+      public Ts val;
     }
-
-    public class Ts {
+    public struct Ts 
+    {
       public bool Boolean;
       public bool[] BooleanA;
       public sbyte SByte;
@@ -121,240 +120,274 @@ namespace RavelTek.Disrupt {
     }
 
     public NetHelper Add(bool val) {
+      Data _data = default(Data);
       _data.dataType = DataType.Boolean;
       _data.val.Boolean = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(bool[] val) {
+      Data _data = default(Data);
       _data.dataType = DataType.BooleanA;
       _data.val.BooleanA = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(sbyte val) {
+      Data _data = default(Data);
       _data.dataType = DataType.SByte;
       _data.val.SByte = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(sbyte[] val) {
+      Data _data = default(Data);
       _data.dataType = DataType.SByteA;
       _data.val.SByteA = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(byte val) {
+      Data _data = default(Data);
       _data.dataType = DataType.Byte;
       _data.val.Byte = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(byte[] val) {
+      Data _data = default(Data);
       _data.dataType = DataType.ByteA;
       _data.val.ByteA = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(char val) {
+      Data _data = default(Data);
       _data.dataType = DataType.Char;
       _data.val.Char = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(char[] val) {
+      Data _data = default(Data);
       _data.dataType = DataType.CharA;
       _data.val.CharA = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(ushort val) {
+      Data _data = default(Data);
       _data.dataType = DataType.UInt16;
       _data.val.UInt16 = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(ushort[] val) {
+      Data _data = default(Data);
       _data.dataType = DataType.UInt16A;
       _data.val.UInt16A = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(short val) {
+      Data _data = default(Data);
       _data.dataType = DataType.Int16;
       _data.val.Int16 = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(short[] val) {
+      Data _data = default(Data);
       _data.dataType = DataType.Int16A;
       _data.val.Int16A = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(uint val) {
+      Data _data = default(Data);
       _data.dataType = DataType.UInt32;
       _data.val.UInt32 = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(uint[] val) {
+      Data _data = default(Data);
       _data.dataType = DataType.UInt32A;
       _data.val.UInt32A = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(int val) {
+      Data _data = default(Data);
       _data.dataType = DataType.Int32;
       _data.val.Int32 = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(int[] val) {
+      Data _data = default(Data);
       _data.dataType = DataType.Int32A;
       _data.val.Int32A = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(float val) {
+      Data _data = default(Data);
       _data.dataType = DataType.Single;
       _data.val.Single = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(float[] val) {
+      Data _data = default(Data);
       _data.dataType = DataType.SingleA;
       _data.val.SingleA = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(ulong val) {
+      Data _data = default(Data);
       _data.dataType = DataType.UInt64;
       _data.val.UInt64 = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(ulong[] val) {
+      Data _data = default(Data);
       _data.dataType = DataType.UInt64A;
       _data.val.UInt64A = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(long val) {
+      Data _data = default(Data);
       _data.dataType = DataType.Int64;
       _data.val.Int64 = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(long[] val) {
+      Data _data = default(Data);
       _data.dataType = DataType.Int64A;
       _data.val.Int64A = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(decimal val) {
+      Data _data = default(Data);
       _data.dataType = DataType.Decimal;
       _data.val.Decimal = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(decimal[] val) {
+      Data _data = default(Data);
       _data.dataType = DataType.DecimalA;
       _data.val.DecimalA = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(double val) {
+      Data _data = default(Data);
       _data.dataType = DataType.Double;
       _data.val.Double = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(double[] val) {
+      Data _data = default(Data);
       _data.dataType = DataType.DoubleA;
       _data.val.DoubleA = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(string val) {
+      Data _data = default(Data);
       _data.dataType = DataType.String;
       _data.val.String = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(string[] val) {
+      Data _data = default(Data);
       _data.dataType = DataType.StringA;
       _data.val.StringA = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(object val) {
+      Data _data = default(Data);
       _data.dataType = DataType.Object;
       _data.val.Object = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(object[] val) {
+      Data _data = default(Data);
       _data.dataType = DataType.ObjectA;
       _data.val.ObjectA = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(Vector3 val) {
+      Data _data = default(Data);
       _data.dataType = DataType.Vector3;
       _data.val.Vector3 = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(Vector3[] val) {
+      Data _data = default(Data);
       _data.dataType = DataType.Vector3A;
       _data.val.Vector3A = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(Quaternion val) {
+      Data _data = default(Data);
       _data.dataType = DataType.Quaternion;
       _data.val.Quaternion = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 
     public NetHelper Add(Quaternion[] val) {
+      Data _data = default(Data);
       _data.dataType = DataType.QuaternionA;
       _data.val.QuaternionA = val;
-      _d.Push(_data);
+      _d.Enqueue(_data);
       return this;
     }
 

@@ -278,11 +278,11 @@ namespace RavelTek.Disrupt.Serializers {
                 }
             },
         };
-    public static void PushData(Packet packet, Stack<NetHelper.Data> value) {
+    public static void PushData(Packet packet, Queue<NetHelper.Data> value) {
       int _c = value.Count;
       writer.Push(_c, packet);
       for (int i = 0; i < _c; i++) {
-        var _o = value.Pop();
+        var _o = value.Dequeue();
         PushData(packet, _o.dataType, _o.val);
       }
     }
@@ -320,8 +320,6 @@ namespace RavelTek.Disrupt.Serializers {
       }
     }
     private static object PullData(Packet packet, int index) {
-      if (index == 44)
-        Debug.Log("Error!");
       switch (index) {
         case 0:
           return reader.PullBool(packet);

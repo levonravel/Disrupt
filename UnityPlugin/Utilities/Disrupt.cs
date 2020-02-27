@@ -122,7 +122,7 @@ namespace RavelTek.Disrupt {
       }
       Manager.SendDestroy(view, receivers);
     }
-    public static void Sync(NetHelper netHelper, string method, SendTo receivers, Stack<NetHelper.Data> data) 
+    public static void Sync(NetHelper netHelper, string method, SendTo receivers, Queue<NetHelper.Data> data) 
     {
       int pointer;
       if (netHelper.MethodPointers.TryGetValue(method, out pointer)) {
@@ -152,7 +152,7 @@ namespace RavelTek.Disrupt {
         }
       }
     }
-    public static void Sync(NetHelper netHelper, string method, Peer peer, Stack<NetHelper.Data> data) {
+    public static void Sync(NetHelper netHelper, string method, Peer peer, Queue<NetHelper.Data> data) {
       int pointer;
       if (netHelper.MethodPointers.TryGetValue(method, out pointer)) {
         MethodInformation classInfo;
@@ -170,7 +170,7 @@ namespace RavelTek.Disrupt {
     }
 
     //push this to a thread via object include parameters.
-    public static void Sync(NetHelper netHelper, string method, EndPoint peer, Stack<NetHelper.Data> data) {
+    public static void Sync(NetHelper netHelper, string method, EndPoint peer, Queue<NetHelper.Data> data) {
       int pointer;
       if (netHelper.MethodPointers.TryGetValue(method, out pointer)) {
         MethodInformation classInfo;
@@ -185,7 +185,7 @@ namespace RavelTek.Disrupt {
         }
       }
     }
-    public static void Sync(NetHelper netHelper, string method, Peer[] peers, Stack<NetHelper.Data> data) {
+    public static void Sync(NetHelper netHelper, string method, Peer[] peers, Queue<NetHelper.Data> data) {
       int pointer;
       if (netHelper.MethodPointers.TryGetValue(method, out pointer)) {
         MethodInformation classInfo;
