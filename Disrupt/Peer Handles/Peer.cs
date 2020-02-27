@@ -108,6 +108,7 @@ namespace RavelTek.Disrupt
             var packet = client.CreatePacket();
             packet.Flag = Flags.Ping;
             client.Socket.SendTo(packet.PayLoad, packet.CurrentIndex, System.Net.Sockets.SocketFlags.None, Address);
+            client.Recycle(packet);
         }
         private void ProcessPing(Packet packet)
         {
