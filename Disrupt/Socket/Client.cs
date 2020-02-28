@@ -46,6 +46,7 @@ namespace RavelTek.Disrupt
             CreateSocket(appId, port, relayAddress, relayPort);
             NetworkUtilities = new Network(this);
             pool = new Pool(this);
+            Packet.client = this;
         }
     }
 }
