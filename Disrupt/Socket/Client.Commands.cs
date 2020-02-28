@@ -88,7 +88,8 @@ namespace RavelTek.Disrupt
                     peer.Value.Send(hardcopy);
                 }
             }
-            Recycle(packet);
+            //Recycle(packet);
+            packet.RecyclePacketFast(packet);
         }
         public void LanDiscovery(int port, float autoConnectSeconds = 0)
         {
