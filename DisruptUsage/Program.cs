@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using RavelTek.Disrupt;
 using RavelTek.Disrupt.Serializers;
 
-namespace TestEnvironment
+namespace DisruptUsage
 {
     class Program
     {

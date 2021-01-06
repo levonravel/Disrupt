@@ -1,0 +1,9 @@
+D:\My Git\Disrupt\TestEnvironment\obj\Debug\TestEnvironment.csprojAssemblyReference.cache
+D:\My Git\Disrupt\TestEnvironment\obj\Debug\TestEnvironment.csproj.CoreCompileInputs.cache
+D:\My Git\Disrupt\TestEnvironment\bin\Debug\TestEnvironment.exe.config
+D:\My Git\Disrupt\TestEnvironment\bin\Debug\TestEnvironment.exe
+D:\My Git\Disrupt\TestEnvironment\bin\Debug\TestEnvironment.pdb
+D:\My Git\Disrupt\TestEnvironment\bin\Debug\Newtonsoft.Json.dll
+D:\My Git\Disrupt\TestEnvironment\obj\Debug\TestEnvironment.csproj.CopyComplete
+D:\My Git\Disrupt\TestEnvironment\obj\Debug\TestEnvironment.exe
+D:\My Git\Disrupt\TestEnvironment\obj\Debug\TestEnvironment.pdb

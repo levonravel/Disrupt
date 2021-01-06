@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{03B93787-CA9B-4EA6-9DBE-937245581027}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>TestEnvironment</RootNamespace>
-    <AssemblyName>TestEnvironment</AssemblyName>
+    <RootNamespace>DisruptUsage</RootNamespace>
+    <AssemblyName>DisruptUsage</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
