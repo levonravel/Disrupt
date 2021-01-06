@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{03B93787-CA9B-4EA6-9DBE-937245581027}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>TestEnvironment</RootNamespace>
+    <AssemblyName>TestEnvironment</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Disrupt API\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Disrupt API\Collections\Pool.cs" />
+    <Compile Include="Disrupt API\Enums\Flags.cs" />
+    <Compile Include="Disrupt API\Enums\Fragment.cs" />
+    <Compile Include="Disrupt API\Enums\Protocol.cs" />
+    <Compile Include="Disrupt API\Json Serializers\AddressConverter.cs" />
+    <Compile Include="Disrupt API\Json Serializers\EnumSerializer.cs" />
+    <Compile Include="Disrupt API\Json Serializers\IPConverter.cs" />
+    <Compile Include="Disrupt API\Json Serializers\JsonSettings.cs" />
+    <Compile Include="Disrupt API\Network Utilities\Network.cs" />
+    <Compile Include="Disrupt API\Network Utilities\Network.Discovery.cs" />
+    <Compile Include="Disrupt API\Network Utilities\Network.Nat.cs" />
+    <Compile Include="Disrupt API\Network Utilities\Network.Upnp.cs" />
+    <Compile Include="Disrupt API\Peer Handles\Peer.cs" />
+    <Compile Include="Disrupt API\Peer Handles\Peer.ReliableReceive.cs" />
+    <Compile Include="Disrupt API\Peer Handles\Peer.ReliableSend.cs" />
+    <Compile Include="Disrupt API\Peer Handles\Peer.SequencedReceive.cs" />
+    <Compile Include="Disrupt API\Peer Handles\Peer.SequencedSend.cs" />
+    <Compile Include="Disrupt API\Serializers\BitConverter.cs" />
+    <Compile Include="Disrupt API\Serializers\ClientInfo.cs" />
+    <Compile Include="Disrupt API\Serializers\NatInfo.cs" />
+    <Compile Include="Disrupt API\Serializers\Reader.cs" />
+    <Compile Include="Disrupt API\Serializers\Writer.cs" />
+    <Compile Include="Disrupt API\Socket\Client.Commands.cs" />
+    <Compile Include="Disrupt API\Socket\Client.cs" />
+    <Compile Include="Disrupt API\Socket\Client.Events.cs" />
+    <Compile Include="Disrupt API\Socket\Client.Receive.cs" />
+    <Compile Include="Disrupt API\Socket\Client.Socket.cs" />
+    <Compile Include="Disrupt API\Socket\HostManagement.cs" />
+    <Compile Include="Disrupt API\Socket\Packet.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Disrupt API\Newtonsoft.Json.dll" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
