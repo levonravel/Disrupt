@@ -11,7 +11,7 @@ namespace RavelTek.Disrupt
         private void CreateSocket(string appId, int port, string relayAddress = null, int relayPort = 0)
         {
             AppId = appId;
-            if (relayAddress != null)
+            if (relayAddress != "")
             {
                 var relayEndpoint = new IPEndPoint(IPAddress.Parse(relayAddress), relayPort);
                 RelayAddress = relayEndpoint;
@@ -44,8 +44,8 @@ namespace RavelTek.Disrupt
                     try
                     {
                         var packet = CreatePacket();
-                        packet.PayloadLength = Socket.ReceiveFrom(packet.PayLoad, 0, 1256, SocketFlags.None, ref packet.Address);
-                        if (packet.PayLoad[0] == 70)
+                        packet.Length = Socket.ReceiveFrom(packet.Payload, 0, 256, SocketFlags.None, ref packet.Address);
+                        if (packet.Payload[0] == 70)
                         {
                             Peers.TryAdd(packet.Address, new Peer((IPEndPoint)packet.Address, this));
                             Process(packet);

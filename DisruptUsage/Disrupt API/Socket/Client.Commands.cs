@@ -88,8 +88,7 @@ namespace RavelTek.Disrupt
                     peer.Value.Send(hardcopy);
                 }
             }
-            //Recycle(packet);
-            packet.RecyclePacketFast(packet);
+            Recycle(packet);
         }
         public void LanDiscovery(int port, float autoConnectSeconds = 0)
         {
@@ -246,28 +245,28 @@ namespace RavelTek.Disrupt
         }
         public void FragmentCheck(Packet packet)
         {
-            if (packet.CurrentIndex <= 1256 || packet.Protocol == Protocol.Sequenced)
+            if (packet.CurrentIndex <= 256 || packet.Protocol == Protocol.Sequenced)
             {
                 fragments.Enqueue(packet);
                 return;
             }
-            var needed = (int)Math.Ceiling((double)(packet.PayLoad.Length - Packet.HeaderSize) / 254);
-            var totalPayload = (packet.PayLoad.Length - Packet.HeaderSize);
-            var endAmount = totalPayload - ((needed - 1) * 254);
+            var needed = (int)Math.Ceiling((double)(packet.CurrentIndex - 3) / (256 - 3));
+            var totalPayload = packet.CurrentIndex;
+            var endAmount = totalPayload - ((needed - 1) * (256 - 3));
             for (int i = 0; i < needed; i++)
             {
                 var lastFrag = i + 1 == needed;
                 var frag = CreatePacket();
                 frag.Protocol = packet.Protocol;
                 frag.Flag = packet.Flag;
-                var copyStartIndex = (i * 254 + Packet.HeaderSize);
-                var copyLength = lastFrag ? endAmount : 254;
-                frag.CurrentIndex = lastFrag ? copyLength + Packet.HeaderSize : 256;
+                var copyStartIndex = i * (256 - 3);
+                var copyLength = lastFrag ? endAmount : 256 - 3;
+                frag.CurrentIndex = lastFrag ? copyLength : 256;
                 try
                 {
-                    Buffer.BlockCopy(packet.PayLoad, copyStartIndex, frag.PayLoad, Packet.HeaderSize, copyLength);
+                    Buffer.BlockCopy(packet.Payload, i == 0 ? 3 : copyStartIndex + 3, frag.Payload, 3, copyLength);
                 }
-                catch (Exception e)
+                catch
                 {
                 }
                 frag.Fragmented = lastFrag ? Fragment.End : Fragment.Begin;

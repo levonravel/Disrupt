@@ -35,7 +35,7 @@ namespace RavelTek.Disrupt
             var ackPacket = client.CreatePacket();
             ackPacket.Flag = Flags.Ack;
             recvWriter.Push(receiverBuffer, ackPacket);
-            client.Socket.SendTo(ackPacket.PayLoad, ackPacket.CurrentIndex, SocketFlags.None, Address);
+            client.Socket.SendTo(ackPacket.Payload, ackPacket.CurrentIndex, SocketFlags.None, Address);
             client.Recycle(ackPacket);
         }
         void UpdateReceiverLowerBound()
@@ -84,35 +84,41 @@ namespace RavelTek.Disrupt
         }
         private Packet ShouldConstruct(Packet packet)
         {
-            if (packet.Fragmented == Fragment.Begin)
+            switch (packet.Fragmented)
             {
-                fragments.Enqueue(packet);
-
-                return null;
-            }
-            else
-            {
-                if (fragments.Count == 0)
-                {
-                    return packet;
-                }
-                fragments.Enqueue(packet);
-                var outPacket = client.CreatePacket();
-                Array.Resize(ref outPacket.PayLoad, outPacket.PayLoad.Length * (fragments.Count));
-                int count = 0;
-                while (fragments.Count != 0)
-                {
-                    var frag = fragments.Dequeue();
-                    Buffer.BlockCopy(frag.PayLoad, Packet.HeaderSize, outPacket.PayLoad, count == 0 ? Packet.HeaderSize : 254 * count + Packet.HeaderSize, 254);
-                    if (frag.Fragmented == Fragment.End)
+                case Fragment.Begin:
+                    fragments.Enqueue(packet);
+                    break;
+                case Fragment.End:
+                    if(fragments.Count == 0)
                     {
-                        outPacket.Flag = packet.Flag;
-                        outPacket.Protocol = packet.Protocol;
-                        return outPacket;
+                        return packet;
                     }
-                    count++;
-                    client.Recycle(frag);
-                }
+                    int count = 0;
+                    var destinationPacket = client.CreatePacket();
+                    var currentLength = 0;
+                    destinationPacket.Flag = packet.Flag;
+                    destinationPacket.Protocol = packet.Protocol;
+                    destinationPacket.Address = packet.Address;
+                    fragments.Enqueue(packet);
+                    Array.Resize(ref destinationPacket.Payload, destinationPacket.Payload.Length * (fragments.Count));
+                    while (fragments.Count != 0)
+                    {
+                        var fragPacket = fragments.Dequeue();
+                        if (fragPacket.Length == 0 || ((fragPacket.Length - 3) + currentLength) > destinationPacket.Payload.Length)
+                        {
+                            client.Recycle(fragPacket);
+                            continue;
+                        }
+                        Buffer.BlockCopy(fragPacket.Payload, 3, destinationPacket.Payload, count == 0 ? 3 : currentLength, fragPacket.Length - 3);
+                        currentLength += count == 0 ? fragPacket.Length : fragPacket.Length - 3;                        
+                        count++;
+                        client.Recycle(fragPacket);
+                    }
+                    return destinationPacket;
+              
+                default:
+                    return null;
             }
             return null;
         }
@@ -178,6 +184,12 @@ namespace RavelTek.Disrupt
         }
         private void Host(Packet packet)
         {
+            if (packet.Address.Equals(client.RelayAddress))
+            {
+                client.RaiseEventHostSuccess(packet);
+                client.Recycle(packet);
+                return;
+            }
             var appId = "";
             NatInfo hostInfo = null;
             appId = recvReader.PullString(packet);
@@ -187,6 +199,9 @@ namespace RavelTek.Disrupt
             {
                 Console.WriteLine("Failed To Create Match");
             }
+            var confirmation = client.CreatePacket();
+            confirmation.Flag = Flags.NatHost;
+            client.SendTo(confirmation, Protocol.Reliable, client.Address.External);
             client.Recycle(packet);
         }
     }

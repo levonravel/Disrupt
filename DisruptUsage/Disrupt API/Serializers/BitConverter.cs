@@ -9,67 +9,67 @@ namespace RavelTek.Disrupt.Serializers
         ////////////////////////////////////////////////////////////////
         public unsafe void GetBytes(Packet packet, bool value)
         {
-            fixed (byte* b = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* b = &packet.Payload[packet.CurrentIndex])
                 *b = *(byte*)&value;
             packet.CurrentIndex += 1;
         }
         public unsafe void GetBytes(Packet packet, byte value)
         {
-            fixed (byte* b = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* b = &packet.Payload[packet.CurrentIndex])
                 *b = *&value;
             packet.CurrentIndex += 1;
         }
         public unsafe void GetBytes(Packet packet, sbyte value)
         {
-            fixed (byte* b = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* b = &packet.Payload[packet.CurrentIndex])
                 *((sbyte*)b) = *&value;
             packet.CurrentIndex += 1;
         }
         public unsafe void GetBytes(Packet packet, short value)
         {
-            fixed (byte* b = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* b = &packet.Payload[packet.CurrentIndex])
                 *((short*)b) = *&value;
             packet.CurrentIndex += 2;
         }
         public unsafe void GetBytes(Packet packet, ushort value)
         {
-            fixed (byte* b = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* b = &packet.Payload[packet.CurrentIndex])
                 *((ushort*)b) = *&value;
             packet.CurrentIndex += 2;
         }
         public unsafe void GetBytes(Packet packet, int value)
         {
-            fixed (byte* b = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* b = &packet.Payload[packet.CurrentIndex])
                 *((int*)b) = *&value;
             packet.CurrentIndex += 4;
         }
         public unsafe void GetBytes(Packet packet, uint value)
         {
-            fixed (byte* b = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* b = &packet.Payload[packet.CurrentIndex])
                 *((uint*)b) = *&value;
             packet.CurrentIndex += 4;            
         }
         public unsafe void GetBytes(Packet packet, float value)
         {
-            fixed (byte* b = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* b = &packet.Payload[packet.CurrentIndex])
                 *((float*)b) = *&value;
             packet.CurrentIndex += 4;
         }
         public unsafe void GetBytes(Packet packet, double value)
         {
-            fixed (byte* b = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* b = &packet.Payload[packet.CurrentIndex])
                 *((double*)b) = *&value;
             packet.CurrentIndex += 8;
         }
         public unsafe void GetBytes(Packet packet, long value)
         {
-            fixed (byte* b = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* b = &packet.Payload[packet.CurrentIndex])
                 *((long*)b) = *&value;
             packet.CurrentIndex += 8;
         }
         public unsafe void GetBytes(Packet packet, ulong value)
         {
-            fixed (byte* b = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* b = &packet.Payload[packet.CurrentIndex])
                 *((ulong*)b) = *&value;
             packet.CurrentIndex += 8;
         }
@@ -80,7 +80,7 @@ namespace RavelTek.Disrupt.Serializers
         ///      2 3 4 5 6 7 8
         public unsafe byte ToByte(Packet packet)
         {
-            fixed (byte* ptr = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* ptr = &packet.Payload[packet.CurrentIndex])
             {
                 packet.CurrentIndex += 1;
                 return *((byte*)(int*)ptr);
@@ -88,7 +88,7 @@ namespace RavelTek.Disrupt.Serializers
         }
         public unsafe sbyte ToSByte(Packet packet)
         {
-            fixed (byte* ptr = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* ptr = &packet.Payload[packet.CurrentIndex])
             {
                 packet.CurrentIndex += 1;
                 return *((sbyte*)(int*)ptr);
@@ -96,7 +96,7 @@ namespace RavelTek.Disrupt.Serializers
         }
         public unsafe short ToShort(Packet packet)
         {
-            fixed (byte* ptr = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* ptr = &packet.Payload[packet.CurrentIndex])
             {
                 packet.CurrentIndex += 2;
                 return *((short*)(int*)ptr);
@@ -104,7 +104,7 @@ namespace RavelTek.Disrupt.Serializers
         }
         public unsafe ushort ToUShort(Packet packet)
         {
-            fixed (byte* ptr = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* ptr = &packet.Payload[packet.CurrentIndex])
             {
                 packet.CurrentIndex += 2;
                 return *((ushort*)(int*)ptr);
@@ -112,7 +112,7 @@ namespace RavelTek.Disrupt.Serializers
         }
         public unsafe int ToInt(Packet packet)
         {
-            fixed (byte* ptr = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* ptr = &packet.Payload[packet.CurrentIndex])
             {
                 packet.CurrentIndex += 4;
                 return *((int*)ptr);
@@ -120,7 +120,7 @@ namespace RavelTek.Disrupt.Serializers
         }
         public unsafe uint ToUInt(Packet packet)
         {
-            fixed (byte* ptr = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* ptr = &packet.Payload[packet.CurrentIndex])
             {
                 packet.CurrentIndex += 4;
                 return *((uint*)(int*)ptr);
@@ -128,7 +128,7 @@ namespace RavelTek.Disrupt.Serializers
         }
         public unsafe float ToFloat(Packet packet)
         {
-            fixed (byte* ptr = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* ptr = &packet.Payload[packet.CurrentIndex])
             {
                 packet.CurrentIndex += 4;
                 return *((float*)(int*)ptr);
@@ -136,7 +136,7 @@ namespace RavelTek.Disrupt.Serializers
         }
         public unsafe decimal ToDecimal(Packet packet)
         {
-            fixed (byte* ptr = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* ptr = &packet.Payload[packet.CurrentIndex])
             {
                 packet.CurrentIndex += 16;
                 return *((decimal*)(int*)ptr);
@@ -144,7 +144,7 @@ namespace RavelTek.Disrupt.Serializers
         }
         public unsafe double ToDouble(Packet packet)
         {
-            fixed (byte* ptr = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* ptr = &packet.Payload[packet.CurrentIndex])
             {
                 packet.CurrentIndex += 8;
                 return *((double*)(int*)ptr);
@@ -152,7 +152,7 @@ namespace RavelTek.Disrupt.Serializers
         }
         public unsafe long ToLong(Packet packet)
         {
-            fixed (byte* ptr = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* ptr = &packet.Payload[packet.CurrentIndex])
             {
                 packet.CurrentIndex += 8;
                 return *((long*)(int*)ptr);
@@ -160,7 +160,7 @@ namespace RavelTek.Disrupt.Serializers
         }
         public unsafe ulong ToULong(Packet packet)
         {
-            fixed (byte* ptr = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* ptr = &packet.Payload[packet.CurrentIndex])
             {
                 packet.CurrentIndex += 8;
                 return *((ulong*)(int*)ptr);
@@ -168,7 +168,7 @@ namespace RavelTek.Disrupt.Serializers
         }
         public unsafe char ToChar(Packet packet)
         {
-            fixed (byte* ptr = &packet.PayLoad[packet.CurrentIndex])
+            fixed (byte* ptr = &packet.Payload[packet.CurrentIndex])
             {
                 packet.CurrentIndex += 2;
                 return *((char*)(int*)ptr);
@@ -177,7 +177,7 @@ namespace RavelTek.Disrupt.Serializers
         public unsafe string ToString(Packet packet)
         {
             var length = ToInt(packet);
-            var eString = System.Text.Encoding.ASCII.GetString(packet.PayLoad, packet.CurrentIndex, length);
+            var eString = System.Text.Encoding.ASCII.GetString(packet.Payload, packet.CurrentIndex, length);
             packet.CurrentIndex += length;
             return eString;
         }

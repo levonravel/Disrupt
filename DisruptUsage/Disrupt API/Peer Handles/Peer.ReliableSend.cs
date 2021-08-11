@@ -97,8 +97,8 @@ namespace RavelTek.Disrupt
         }
         private void SendPacket(Packet packet)
         {
-            //UnityEngine.Debug.Log($"Packet sent: {packet.Id} | Index {packet.CurrentIndex} | ObjectID? {System.BitConverter.ToUInt16(new[] { packet.PayLoad[4], packet.PayLoad[5] }, 0)}");
-            client.Socket.SendTo(packet.PayLoad, 0, packet.CurrentIndex, SocketFlags.None, Address);
+            UnityEngine.Debug.Log($"Sending to {Address} Packet sent: {packet.Id} | Number of bytes {packet.CurrentIndex} | Packet Type {packet.Flag} | Protocol {packet.Protocol} | ObjectID {System.BitConverter.ToUInt16(new[] { packet.Payload[4], packet.Payload[5] }, 0)}");
+            client.Socket.SendTo(packet.Payload, 0, packet.CurrentIndex, SocketFlags.None, Address);
             sendBuffer[packet.Id] = packet;
         }
     }

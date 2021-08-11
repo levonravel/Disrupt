@@ -10,7 +10,7 @@ namespace RavelTek.Disrupt
         {
             sentSeq++;
             packet.Id = sentSeq;            
-            client.Socket.SendTo(packet.PayLoad, packet.CurrentIndex, SocketFlags.None, Address);
+            client.Socket.SendTo(packet.Payload, packet.CurrentIndex, SocketFlags.None, Address);
             client.Recycle(packet);
         }
     }

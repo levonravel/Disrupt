@@ -21,8 +21,14 @@ namespace RavelTek.Disrupt
         public event HostList OnHostList;
         public event HostSuccess OnHostSuccess;
         private static readonly Queue<Action> EventCollection = new Queue<Action>();
-        private readonly Reader reader = new Reader();        
+        private readonly Reader reader = new Reader();
 
+        public void RaiseEventHostSuccess(Packet packet)
+        {
+            Recycle(packet);
+            if (OnHostSuccess == null) return;
+            OnHostSuccess();
+        }
         public void RaiseEventConnect(Packet packet, Peer peer)
         {
             if (OnConnected == null)

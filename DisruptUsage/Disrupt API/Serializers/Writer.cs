@@ -13,8 +13,8 @@ namespace RavelTek.Disrupt.Serializers
 
         public void CheckPayLoadSize(int needed, Packet packet)
         {
-            if (packet.CurrentIndex + needed >= packet.PayLoad.Length)
-                Array.Resize(ref packet.PayLoad, (packet.PayLoad.Length + needed) + 1);
+            if (packet.CurrentIndex + needed >= packet.Payload.Length)
+                Array.Resize(ref packet.Payload, (packet.Payload.Length + needed) + 1);
         }        
         public void Push(bool value, Packet packet)
         {

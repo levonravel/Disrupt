@@ -48,7 +48,7 @@ public partial class Reader
             try
             {
                 stringLen = PullInt(packet);                
-                var eString = encoder.GetString(packet.PayLoad, packet.CurrentIndex, stringLen);
+                var eString = encoder.GetString(packet.Payload, packet.CurrentIndex, stringLen);
                 packet.CurrentIndex += stringLen;
                 return eString;
             }
@@ -64,7 +64,7 @@ public partial class Reader
             for(int i = 0; i < count; i++)
             {
                 var stringLen = PullInt(packet);                
-                var eString = encoder.GetString(packet.PayLoad, packet.CurrentIndex, stringLen);
+                var eString = encoder.GetString(packet.Payload, packet.CurrentIndex, stringLen);
                 packet.CurrentIndex += stringLen;
                 values[i] = eString;
             }
@@ -72,7 +72,7 @@ public partial class Reader
         }
         public bool PullBool(Packet packet)
         {            
-            var value = packet.PayLoad[packet.CurrentIndex];
+            var value = packet.Payload[packet.CurrentIndex];
             packet.CurrentIndex++;
             return value == 1;
         }
@@ -82,7 +82,7 @@ public partial class Reader
             var values = new bool[count];
             for (int i = 0; i < count; i++)
             {
-                var value = packet.PayLoad[packet.CurrentIndex];
+                var value = packet.Payload[packet.CurrentIndex];
                 packet.CurrentIndex++;
                 values[i] = value == 1;
             }
