@@ -210,7 +210,6 @@ namespace RavelTek.Disrupt.Serializers {
                 {
                   Type _o = FindType(ref value.Object);
                     writer.Push((byte)28, packet);
-                    writer.Push(_o.FullName + "," + _o.Assembly.GetName().Name, packet);
                     writer.Push(value.Object, packet);
                 }
             },

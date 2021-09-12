@@ -6,8 +6,9 @@ using System;
 using System.Collections.Generic;
 
 namespace RavelTek.Disrupt {
-  public static class Disrupt {
-    private static DisruptManager manager;
+  public static class Disrupt 
+    {
+    private static Manager manager;
     public static bool IsHost => Client.IsServer;
     public static bool IsReady;
     private static readonly Writer writer = new Writer();
@@ -129,11 +130,11 @@ namespace RavelTek.Disrupt {
         MethodInformation classInfo;
         if (netHelper.View.Methods.TryGetValue(pointer, out classInfo)) {
           var packet = Client.CreatePacket();
-          writer.Push((ushort)netHelper.View.OwnerId, packet);
-          writer.Push(netHelper.View.ObjectId, packet);
-          writer.Push(pointer, packet);
+          writer.Add((ushort)netHelper.View.OwnerId, packet);
+          writer.Add(netHelper.View.ObjectId, packet);
+          writer.Add(pointer, packet);
           packet.lastUsage = method;
-          ObjectHelper.PushData(packet, data);
+          ObjectHelper.AddData(packet, data);
           switch (receivers) {
             case SendTo.All:
               Client.Broadcast(packet, classInfo.Protocol, null);
@@ -159,27 +160,27 @@ namespace RavelTek.Disrupt {
         if (netHelper.View.Methods.TryGetValue(pointer, out classInfo)) {
           var packet = Client.CreatePacket();
           packet.lastUsage = method;
-          writer.Push((ushort)netHelper.View.OwnerId, packet);
-          writer.Push(netHelper.View.ObjectId, packet);
-          writer.Push(pointer, packet);
-          ObjectHelper.PushData(packet, data);
+          writer.Add((ushort)netHelper.View.OwnerId, packet);
+          writer.Add(netHelper.View.ObjectId, packet);
+          writer.Add(pointer, packet);
+          ObjectHelper.AddData(packet, data);
           packet.lastUsage = method;
           Client.SendTo(packet, classInfo.Protocol, peer.Address);
         }
       }
     }
 
-    //push this to a thread via object include parameters.
+    //Add this to a thread via object include parameters.
     public static void Sync(NetHelper netHelper, string method, EndPoint peer, Queue<NetHelper.Data> data) {
       int pointer;
       if (netHelper.MethodPointers.TryGetValue(method, out pointer)) {
         MethodInformation classInfo;
         if (netHelper.View.Methods.TryGetValue(pointer, out classInfo)) {
           var packet = Client.CreatePacket();
-          writer.Push((ushort)netHelper.View.OwnerId, packet);
-          writer.Push(netHelper.View.ObjectId, packet);
-          writer.Push(pointer, packet);
-          ObjectHelper.PushData(packet, data);
+          writer.Add((ushort)netHelper.View.OwnerId, packet);
+          writer.Add(netHelper.View.ObjectId, packet);
+          writer.Add(pointer, packet);
+          ObjectHelper.AddData(packet, data);
           packet.lastUsage = method;
           Client.SendTo(packet, classInfo.Protocol, peer);
         }
@@ -192,10 +193,10 @@ namespace RavelTek.Disrupt {
         if (netHelper.View.Methods.TryGetValue(pointer, out classInfo)) {
           foreach (var peer in peers) {
             var packet = Client.CreatePacket();
-            writer.Push((ushort)netHelper.View.OwnerId, packet);
-            writer.Push(netHelper.View.ObjectId, packet);
-            writer.Push(pointer, packet);
-            ObjectHelper.PushData(packet, data);
+            writer.Add((ushort)netHelper.View.OwnerId, packet);
+            writer.Add(netHelper.View.ObjectId, packet);
+            writer.Add(pointer, packet);
+            ObjectHelper.AddData(packet, data);
             packet.lastUsage = method;
             Client.SendTo(packet, classInfo.Protocol, peer.Address);
           }
