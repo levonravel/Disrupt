@@ -5,12 +5,11 @@
         None,
         NatReq,
         NatIntro,
-        Ping,
+        PacketUpdate,
         Dat,
         Dscvr,
         Conn,
         NatHost,
         HostList,
-        Ack
     }
 }

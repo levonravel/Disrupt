@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
@@ -7,14 +8,14 @@ namespace RavelTek.Disrupt
     public class Exchange
     {
         public Pool Pool = new Pool();
-        public List<EndPoint> Peers = new List<EndPoint>();
+        public Dictionary<EndPoint, PeerContainer> Peers = new Dictionary<EndPoint, PeerContainer>();
         private Socket socket;
         private Reliable reliable;
         private Sequenced sequenced;
 
         public Exchange(DisruptClient disrupt)
         {
-            this.socket = disrupt.Socket;
+            socket = disrupt.Socket;
             reliable = new Reliable(disrupt);
             sequenced = new Sequenced(disrupt);
         }
@@ -29,7 +30,11 @@ namespace RavelTek.Disrupt
         }
         public List<EndPoint> GetPeers()
         {
-            return Peers;
+            return Peers.Keys.ToList();
+        }
+        public void SendRaw(Packet packet)
+        {
+            socket.SendTo(packet.Payload, packet.CurrentIndex, SocketFlags.None, packet.Address);
         }
         public void Send(Packet packet, Protocol protocol, string destination, int port)
         {
@@ -56,7 +61,7 @@ namespace RavelTek.Disrupt
         public void Broadcast(Packet packet, Protocol protocol, EndPoint exclusion = null)
         {
             packet.Protocol = protocol;
-            foreach (var destination in Peers)
+            foreach (var destination in Peers.Keys)
             {
                 if (exclusion != null && exclusion.Equals(destination)) continue;
                 var hardcopy = packet.Clone(CreatePacket());
@@ -106,7 +111,7 @@ namespace RavelTek.Disrupt
         /// <returns></returns>
         private bool CheckAllowed(Packet packet)
         {
-            if (!Peers.Contains(packet.Address))
+            if (!Peers.TryGetValue(packet.Address, out PeerContainer peer))
             {
                 RecyclePacket(packet);
                 return false;

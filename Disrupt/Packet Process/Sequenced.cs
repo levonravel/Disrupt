@@ -20,7 +20,8 @@ namespace RavelTek.Disrupt
             base.RecieveReady(packet);
             switch (packet.Flag)
             {
-                case Flags.Ping:
+                case Flags.PacketUpdate:
+                    Client.Events.RaiseEventPacketUpdate(packet);
                     break;
                 case Flags.Dat:
                     if (LatestPacket(recvId, packet.Id))

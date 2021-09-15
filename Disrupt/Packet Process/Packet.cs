@@ -82,7 +82,7 @@ namespace RavelTek.Disrupt
             }
         }
         public void Reset()
-        {
+        { 
             Payload[0] = 0;
             Payload[1] = 0;
             Payload[2] = 0;

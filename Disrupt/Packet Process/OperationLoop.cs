@@ -13,20 +13,6 @@ namespace RavelTek.Disrupt
         private static readonly object recv = new object();
         private static readonly object send = new object();
 
-        public void Initiate(DisruptClient client)
-        {
-            this.Client = client;
-            var readThread = new Thread(ReadQueue)
-            {
-                IsBackground = true
-            };
-            readThread.Start();
-            var sendThread = new Thread(SendQueue)
-            {
-                IsBackground = true,
-            };
-            sendThread.Start();
-        }
         public void PushRecvPacket(Packet packet)
         {
             lock (recv) RecvPackets.Enqueue(packet);
@@ -59,7 +45,20 @@ namespace RavelTek.Disrupt
                 SendTicker.Reset();
             }
         }
-
+        public virtual void Initiate(DisruptClient client)
+        {
+            this.Client = client;
+            var readThread = new Thread(ReadQueue)
+            {
+                IsBackground = true
+            };
+            readThread.Start();
+            var sendThread = new Thread(SendQueue)
+            {
+                IsBackground = true,
+            };
+            sendThread.Start();
+        }
         public virtual void RecieveReady(Packet packet) { }
         public virtual void SendReady(Packet packet) { }
     }
