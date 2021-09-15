@@ -1,35 +1,84 @@
+using RavelTek.Disrupt.Serializers;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RavelTek.Disrupt
 {
-    public class PeerContainer
+    public class PeerContainer : FragmentProcess
     {
-        public Queue<Packet> AwaitingPackets = new Queue<Packet>();
-        public Queue<Packet> RecvFragPackets = new Queue<Packet>();
-        public Packet[] SentPackets = new Packet[32];
-        public Packet[] RecvPackets = new Packet[32];
-        private byte bit;
-        //Transport Layer dont think in ACK NACK we need to use a ping to keep the nat hole open so instead of sending extra data just send the 
-        //missing packets as the ping every x interval (I believe its 15 seconds before the hole closes not sure but every second a ping cant hurt)
-        //math caculation on 1 second ping 1 / 32 = 0.03125 milliseconds equivalent to ack nack back and foreth many times much better performance.
-        //awaitingPackets holds all of the packets that could not be sent yet 
-        //recvFragPackets holds all of the fragmented data packets once the transmission completes push the packet together and event it
-        //round about the sent and recv packets
-        //if we have recieved packet 31 and received 0 is null slot the recieved in the bottom layer
-        //ack the whole buffer in bits 0 - 31. 0s will be not recieved and 1s will be recieved
-        //when a ack comes through for the client sent packets will do the same
+        private DisruptClient client;
+        private Packet[] sentPackets = new Packet[32];
+        private Packet[] recvPackets = new Packet[32];
+        private Reader reader = new Reader();
+        private byte sentIndex;
+        private int recvBits;
+        private bool isLooping;
 
-        public void PacketUpdate(Packet packet, DisruptClient client)
+        public int ReceivedBits
         {
+            get { return recvBits; }  set { recvBits = value; }
+        }
+
+        public void SendLoop()
+        {
+            if (isLooping) return;
+            Task.Run(() =>
+            {
+                while(Awaited.Count > 0)
+                {
+                    TrySend();
+                    Thread.Sleep(1);
+                }
+            });
+            isLooping = false;
+        }
+        public PeerContainer(DisruptClient client)
+        {
+            this.client = client;
+        }
+        public Packet Receive(Packet packet)
+        {
+            ReceivedBits |= 1 << packet.Id;
+            return ConstructPacket(packet);
+        }
+        public void EnqueuePacket(Packet packet)
+        {
+            ShouldFragment(packet);
+        }
+        public void PacketUpdate(Packet packet)
+        {
+            var bits = reader.PullInt(packet);
             for(int i = 0; i < 32; i++)
             {
-                bit = 0;
-                //if bit is 1 they received the packet clear it from the buffer
-                client.Exchange.RecyclePacket(SentPackets[bit]);
-                SentPackets[bit] = null;
-                //if bit is 0 we need to resend that packet send it raw so it doesnt calculate again
-                client.Exchange.SendRaw(SentPackets[bit]);
+                if ((bits & (1 << i)) != 0)
+                {
+                    client.Exchange.RecyclePacket(sentPackets[i]);
+                    sentPackets[i] = null;
+                }
+                else
+                {
+                    client.Exchange.SendRaw(sentPackets[i]);
+                }                
             }
+        }
+        public void TrySend()
+        {
+            if (!CanSend()) return;
+            Send(Awaited.Dequeue());
+        }
+        private void Send(Packet packet)
+        {
+            sentIndex = (byte)(sentIndex % 31);
+            sentPackets[sentIndex] = packet;
+            packet.Id = sentIndex;
+            client.Socket.SendTo(packet.Payload, packet.CurrentIndex, System.Net.Sockets.SocketFlags.None, packet.Address);
+            sentIndex++;
+        }
+        private bool CanSend()
+        {
+            sentIndex = (byte)(sentIndex % 31);
+            return sentPackets[sentIndex] == null ? true : false;
         }
     }
 }

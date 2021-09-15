@@ -15,25 +15,25 @@ namespace RavelTek.Disrupt
         public bool IsHost;
         public Events Events;
 
-        public void RequestAdd(EndPoint destination)
+        public void RequestAdd(EndPoint destination, DisruptClient client)
         {
-            Exchange.Peers.Add(destination, new PeerContainer()); //remove if add was denied
+            Exchange.Peers.Add(destination, new PeerContainer(client)); //remove if add was denied
             var packet = Exchange.CreatePacket();
             packet.Flag = Flags.Conn;
             Exchange.Send(packet, Protocol.Sequenced, destination);
         }
-        public void RequestAdd(string address, int port)
+        public void RequestAdd(string address, int port, DisruptClient client)
         {
             var destination = new IPEndPoint(IPAddress.Parse(address), port);
-            Exchange.Peers.Add(destination, new PeerContainer()); //Remove if add was denied
+            Exchange.Peers.Add(destination, new PeerContainer(client)); //Remove if add was denied
             var packet = Exchange.CreatePacket();
             packet.Flag = Flags.Conn;
             Exchange.Send(packet, Protocol.Sequenced, destination);
         }
         public void DenyRequest() { }
-        public void AddConnection(EndPoint destination)
+        public void AddConnection(EndPoint destination, DisruptClient client)
         {
-            Exchange.Peers.Add(destination, new PeerContainer());
+            Exchange.Peers.Add(destination, new PeerContainer(client));
         }
         public void FindLanMatches() 
         {

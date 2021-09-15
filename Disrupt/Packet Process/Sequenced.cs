@@ -15,9 +15,9 @@ namespace RavelTek.Disrupt
         {
             Initiate(client);
         }
-        public override void RecieveReady(Packet packet)
+        public override void ReceiveReady(Packet packet)
         {
-            base.RecieveReady(packet);
+            base.ReceiveReady(packet);
             switch (packet.Flag)
             {
                 case Flags.PacketUpdate:
@@ -47,6 +47,14 @@ namespace RavelTek.Disrupt
         public override void SendReady(Packet packet)
         {
             base.SendReady(packet);
+            if (packet.CurrentIndex > 576)
+            {
+#if UNITY_EDITOR
+                UnityEngine.Debug.LogWarning($"A sequenced packet was sent with a byte count of {packet.CurrentIndex} this might fragment");
+#else
+                Console.WriteLine($"A sequenced packet was sent with a byte count of {packet.CurrentIndex} this might fragment");
+#endif
+            }
             try
             {
                 sendId++;
@@ -56,7 +64,7 @@ namespace RavelTek.Disrupt
             }
             catch
             {
-
+                Client.Exchange.ReceivePacket(packet);
             }
         }
         private bool LatestPacket(int s2, int s1)

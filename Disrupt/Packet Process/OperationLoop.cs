@@ -28,7 +28,7 @@ namespace RavelTek.Disrupt
                 RecvTicker.Wait();
                 for(int i = 0; i < RecvPackets.Count; i++)
                 { 
-                    lock(recv)RecieveReady(RecvPackets.Dequeue());
+                    lock(recv)ReceiveReady(RecvPackets.Dequeue());
                 }
                 RecvTicker.Reset();
             }
@@ -59,7 +59,7 @@ namespace RavelTek.Disrupt
             };
             sendThread.Start();
         }
-        public virtual void RecieveReady(Packet packet) { }
+        public virtual void ReceiveReady(Packet packet) { }
         public virtual void SendReady(Packet packet) { }
     }
 }

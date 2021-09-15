@@ -14,7 +14,6 @@ namespace RavelTek.Disrupt
         public int Length;
         public int CurrentIndex = HeaderSize;
         public string lastUsage;
-        public int packetCount;
 
         public Fragment Fragmented
         {
