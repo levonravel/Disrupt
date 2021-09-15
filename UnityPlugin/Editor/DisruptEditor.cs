@@ -8,13 +8,19 @@ using UnityEditor.SceneManagement;
 
 namespace RavelTek.Disrupt
 {
-    [CustomEditor(typeof(DisruptManagement), true, isFallback = true)]
+    [CustomEditor(typeof(Manager), true, isFallback = true)]
     public class RavelResourceEditor : Editor
     {
         private GUIStyle toggleButtonStyleNormal = null;
         private GUIStyle toggleButtonStyleToggled = null;
         private int currentToggle;
+        private Manager menu;
+        private int trackerCount;
 
+        public void OnEnable()
+        {
+            menu = target as Manager;
+        }
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -26,6 +32,7 @@ namespace RavelTek.Disrupt
             }
             GUILayout.Space(20);
             GUI.backgroundColor = new Color32(180, 180, 180, 255);
+            GUI.contentColor= Color.white;
             GUILayout.BeginVertical("HelpBox");
             GUILayout.Label("NETWORKED PREFABS", new GUIStyle()
             {
@@ -34,33 +41,50 @@ namespace RavelTek.Disrupt
             });
             GUILayout.BeginHorizontal();
             GUILayout.BeginVertical("GroupBox");
-            for(int i = DisruptManagement.Instance.Prefabs.Count - 1; i >= 0; i--)
+            for(int i = menu.Prefabs.Count - 1; i >= 0; i--)
             {
-                if(DisruptManagement.Instance.Prefabs[i] == null)
-                {
-                    DisruptManagement.Instance.Prefabs.RemoveAt(i);
-                    continue;
-                }
-                GUILayout.Label(DisruptManagement.Instance.Prefabs[i].name, new GUIStyle() { fontStyle = FontStyle.Italic });
+                GUILayout.Label(menu.Prefabs[i].name, new GUIStyle() { fontStyle = FontStyle.Italic });
             }
             GUILayout.EndVertical();
             GUILayout.EndHorizontal();
             GUILayout.EndVertical();
-            if (GUILayout.Button("Populate Prefabs"))
+            if (GUILayout.Button("Repopulate Network"))
             {
-                DisruptManagement.Instance.ClearPrefabs();
+                menu.PlayerId = menu.GetPlayerId();
+                trackerCount = 0;
+                var prefabCount = 0;
+                var trackers = FindObjectsOfType(typeof(ObjectTracker), true) as ObjectTracker[];
+                for (int i = 0; i < trackers.Length; i++)
+                {
+                    trackers[i].Id = i;
+                    trackers[i].OwnerId = menu.PlayerId;
+                    var helpers = trackers[i].gameObject.GetComponentsInChildren<NetHelper>(true);
+                    for (byte x = 0; x < helpers.Length; x++)
+                    {
+                        helpers[x].Id = x;
+                    }
+                    trackerCount++;
+                }
+                menu.Prefabs.Clear();
+                menu.PrefabIndexes.Clear();
                 var assets = AssetDatabase.FindAssets("t:Prefab");
                 foreach (var guid in assets)
                 {
                     var path = AssetDatabase.GUIDToAssetPath(guid);
                     GameObject prefabRoot = AssetDatabase.LoadAssetAtPath(path, typeof(GameObject)) as GameObject;
-                    var view = prefabRoot.GetComponent<NetBridge>();
+                    var view = prefabRoot.GetComponent<ObjectTracker>();
+                    view.Id = trackerCount;
+                    view.OwnerId = menu.PlayerId;
+                    trackerCount++;
                     if (view == null) continue;
-                    DisruptManagement.Instance.InsertPrefab(prefabRoot);
-                    //AssetDatabase.Refresh();
-                }
-                EditorUtility.SetDirty(DisruptManagement.Instance);
-                AssetDatabase.SaveAssets();
+                    var helpers = view.gameObject.GetComponentsInChildren<NetHelper>(true);
+                    for (byte x = 0; x < helpers.Length; x++)
+                    {
+                        helpers[x].Id = x;
+                    }
+                    menu.AddPrefab(prefabRoot, prefabCount);
+                    prefabCount++;
+                }             
             }
             GUILayout.FlexibleSpace();
             GUILayout.Space(20);
