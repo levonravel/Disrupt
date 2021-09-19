@@ -47,7 +47,7 @@ namespace RavelTek.Disrupt
                         {
                             i.TrySend();
                         }
-                        await Task.Delay(100);
+                        await Task.Delay(1);
                     }catch (Exception e)
                     {
                         UnityEngine.Debug.LogError(e);
