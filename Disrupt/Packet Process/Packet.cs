@@ -10,7 +10,7 @@ namespace RavelTek.Disrupt
         public static int count = 0;
         public EndPoint Address = new IPEndPoint(IPAddress.Any, 0);
         public bool SingleSend;
-        public byte[] Payload = new byte[1256];
+        public byte[] Payload = new byte[512];
         public int Length;
         public int CurrentIndex = HeaderSize;
         public string lastUsage;
@@ -90,6 +90,10 @@ namespace RavelTek.Disrupt
         }
         public Packet Clone(Packet hardcopy)
         {
+            if (hardcopy.Payload.Length < Payload.Length)
+            {
+                Array.Resize(ref hardcopy.Payload, Payload.Length);
+            }
             FastCopy(Payload, 0, hardcopy.Payload, 0, Payload.Length);
             hardcopy.CurrentIndex = CurrentIndex;
             return hardcopy;

@@ -7,24 +7,29 @@ namespace RavelTek.Disrupt
 {
     public class FragmentProcess
     {
-        private const int fragmentLimit = 512;
-        private Queue<Packet> fragments = new Queue<Packet>();
         public Queue<Packet> Awaited = new Queue<Packet>();
-        private DisruptClient client;
+        public DisruptClient Client;
+        private const int fragmentLimit = 511;
+        private Queue<Packet> fragments = new Queue<Packet>();
 
-        public Packet ConstructPacket(Packet packet)
+        public FragmentProcess(DisruptClient client)
+        {
+            Client = client;
+        }
+        public void ConstructPacket(Packet packet)
         {
             if(packet.Fragmented == Fragment.Begin)
             {
                 fragments.Enqueue(packet);
-                return null;
+                return;
             }
             else if(fragments.Count == 0)
             {
-                return packet;
+                Client.Events.RaiseEventData(packet);
+                return;
             }
             fragments.Enqueue(packet);
-            var constructed = client.Exchange.CreatePacket();
+            var constructed = Client.Exchange.CreatePacket();
             var offset = fragmentLimit - 3;
             constructed.Payload = new byte[fragments.Count * (offset) + 3];
             constructed.CurrentIndex = 3;
@@ -39,7 +44,7 @@ namespace RavelTek.Disrupt
                     constructed.CurrentIndex = 3;
                 }
             }
-            return constructed;
+            Client.Events.RaiseEventData(constructed);
         }
         public void ShouldFragment(Packet packet)
         {
@@ -54,14 +59,14 @@ namespace RavelTek.Disrupt
             for (int i = 0; i < needed; i++)
             {
                 var lastFrag = i + 1 == needed;
-                var frag = client.Exchange.CreatePacket();
+                Packet frag = Client.Exchange.Pool.CreateObject();
                 frag.Protocol = packet.Protocol;
                 frag.Flag = packet.Flag;
                 var copyStartIndex = i * (fragmentLimit - 3);
                 var copyLength = lastFrag ? endAmount : fragmentLimit - 3;
                 frag.CurrentIndex = lastFrag ? copyLength : fragmentLimit;
                 FastCopy(packet.Payload, i == 0 ? 3 : copyStartIndex + 3, frag.Payload, 3, copyLength);
-                frag.Fragmented = lastFrag ? Fragment.End : Fragment.Begin;
+                frag.Fragmented = lastFrag ? Fragment.End : Fragment.Begin;                
                 Awaited.Enqueue(frag);
             }
         }

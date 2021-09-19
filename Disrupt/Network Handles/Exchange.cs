@@ -22,7 +22,8 @@ namespace RavelTek.Disrupt
 
         public Packet CreatePacket()
         {
-            return Pool.CreateObject();
+            var packet = Pool.CreateObject();
+            return packet;
         }
         public void RecyclePacket(Packet packet)
         {
@@ -66,6 +67,10 @@ namespace RavelTek.Disrupt
                 if (exclusion != null && exclusion.Equals(destination)) continue;
                 var hardcopy = packet.Clone(CreatePacket());
                 hardcopy.Address = destination;
+                if(hardcopy.CurrentIndex > 512)
+                {
+                    UnityEngine.Debug.Log("Bigger");
+                }
                 SortPacket(hardcopy);
             }
         }

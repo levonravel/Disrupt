@@ -1,84 +1,129 @@
 using RavelTek.Disrupt.Serializers;
+using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace RavelTek.Disrupt
 {
-    public class PeerContainer : FragmentProcess
+    public class PeerContainer
     {
-        private DisruptClient client;
-        private Packet[] sentPackets = new Packet[32];
-        private Packet[] recvPackets = new Packet[32];
+        private const int maxIndexes = 32;
+        private FragmentProcess fragmentProcess;
+        private EndPoint address;
+        public Writer writer = new Writer();        
+        private Packet[] sentPackets = new Packet[maxIndexes];
+        private Packet[] recvPackets = new Packet[maxIndexes];
         private Reader reader = new Reader();
         private byte sentIndex;
         private int recvBits;
-        private bool isLooping;
+        private int confBits;
+        private int recvLower = 0;
 
+        public PeerContainer(DisruptClient client, EndPoint address)
+        {
+            this.address = address;
+            fragmentProcess = new FragmentProcess(client);
+        }
         public int ReceivedBits
         {
-            get { return recvBits; }  set { recvBits = value; }
+            get 
+            { 
+                return recvBits; 
+            }  
+            set
+            { 
+                recvBits = value; 
+            }
         }
 
-        public void SendLoop()
+        public void Receive(Packet packet)
         {
-            if (isLooping) return;
-            Task.Run(() =>
+            if(packet.Id == 69)
             {
-                while(Awaited.Count > 0)
-                {
-                    TrySend();
-                    Thread.Sleep(1);
-                }
-            });
-            isLooping = false;
-        }
-        public PeerContainer(DisruptClient client)
-        {
-            this.client = client;
-        }
-        public Packet Receive(Packet packet)
-        {
+                ReceivedBits = 0;
+                return;
+            }
+            if (ReceivedBits == -1 || recvPackets[packet.Id] != null) return;
             ReceivedBits |= 1 << packet.Id;
-            return ConstructPacket(packet);
+            recvPackets[packet.Id] = packet;
+            while(true)
+            { 
+                if (recvPackets[recvLower] == null) return;             
+                fragmentProcess.ConstructPacket(recvPackets[recvLower]);
+                recvPackets[recvLower] = null;
+                recvLower++;
+                recvLower %= maxIndexes;
+            }
+        }
+        public void SendUpdate()
+        {            
+            var packet = fragmentProcess.Client.Exchange.CreatePacket();
+            writer.Open(packet)
+                .Add(recvBits);
+            packet.Flag = Flags.PacketUpdate;
+            packet.Protocol = Protocol.Reliable;
+            packet.Address = address;
+            fragmentProcess.Client.Exchange.SendRaw(packet);
         }
         public void EnqueuePacket(Packet packet)
         {
-            ShouldFragment(packet);
+            fragmentProcess.ShouldFragment(packet);
         }
         public void PacketUpdate(Packet packet)
         {
             var bits = reader.PullInt(packet);
-            for(int i = 0; i < 32; i++)
+            if (bits == -1)
             {
+                //reset sender counter
+                sentIndex = 0;
+                var confirmation = fragmentProcess.Client.Exchange.CreatePacket();
+                confirmation.Flag = Flags.Dat;
+                confirmation.Protocol = Protocol.Reliable;
+                confirmation.Id = 69;
+                confirmation.Address = address;
+                fragmentProcess.Client.Exchange.SendRaw(confirmation);
+                if (sentPackets[maxIndexes - 1] != null)
+                {
+                    fragmentProcess.Client.Exchange.RecyclePacket(sentPackets[maxIndexes - 1]);
+                    sentPackets[maxIndexes - 1] = null;
+                }
+                return;
+            }
+            for (int i = 0; i < maxIndexes; i++)
+            {
+                if (sentPackets[i] == null) continue;
                 if ((bits & (1 << i)) != 0)
                 {
-                    client.Exchange.RecyclePacket(sentPackets[i]);
+                    fragmentProcess.Client.Exchange.RecyclePacket(sentPackets[i]);
                     sentPackets[i] = null;
                 }
                 else
                 {
-                    client.Exchange.SendRaw(sentPackets[i]);
-                }                
+                    fragmentProcess.Client.Exchange.SendRaw(sentPackets[i]);
+                }
             }
         }
         public void TrySend()
         {
-            if (!CanSend()) return;
-            Send(Awaited.Dequeue());
+            while (CanSend() && fragmentProcess.Awaited.Count > 0)
+            {
+                Send(fragmentProcess.Awaited.Dequeue());
+            }
         }
         private void Send(Packet packet)
         {
-            sentIndex = (byte)(sentIndex % 31);
             sentPackets[sentIndex] = packet;
             packet.Id = sentIndex;
-            client.Socket.SendTo(packet.Payload, packet.CurrentIndex, System.Net.Sockets.SocketFlags.None, packet.Address);
+            packet.Address = address;
+            fragmentProcess.Client.Socket.SendTo(packet.Payload, packet.CurrentIndex, System.Net.Sockets.SocketFlags.None, packet.Address);
             sentIndex++;
         }
         private bool CanSend()
         {
-            sentIndex = (byte)(sentIndex % 31);
-            return sentPackets[sentIndex] == null ? true : false;
+            if (sentIndex == maxIndexes) return false;
+            return sentPackets[sentIndex] == null;
         }
     }
 }

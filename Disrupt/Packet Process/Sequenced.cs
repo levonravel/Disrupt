@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
 using UnityEngine;
+using System;
 
 namespace RavelTek.Disrupt
 {
@@ -20,9 +21,6 @@ namespace RavelTek.Disrupt
             base.ReceiveReady(packet);
             switch (packet.Flag)
             {
-                case Flags.PacketUpdate:
-                    Client.Events.RaiseEventPacketUpdate(packet);
-                    break;
                 case Flags.Dat:
                     if (LatestPacket(recvId, packet.Id))
                     {

@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace RavelTek.Disrupt
 {
@@ -24,21 +25,22 @@ namespace RavelTek.Disrupt
             Socket.EnableBroadcast = true;
             Socket.Bind(InternalAddress);
             ExternalAddress = ((IPEndPoint)Socket.LocalEndPoint);
-            Exchange = new Exchange(this);
             Events = new Events(this);
+            Exchange = new Exchange(this);            
             var recvThread = new Thread(Receive);
             recvThread.IsBackground = true;
             recvThread.Start();
         }
         private void Receive()
         {
+            Ping();
             while (Socket != null)
             {                
                 try
                 {
                     if (Socket.Available == 0 && !Socket.Poll(ReceivePollingTime, SelectMode.SelectRead)) continue;
                     var packet = Exchange.CreatePacket();
-                    packet.Length = Socket.ReceiveFrom(packet.Payload, 0, 1256, SocketFlags.None, ref packet.Address);
+                    packet.Length = Socket.ReceiveFrom(packet.Payload, 0, 512, SocketFlags.None, ref packet.Address);
                     if (packet.Flag == Flags.Conn)
                     {                        
                         Events.RaiseEventAddRequest(packet);
@@ -50,6 +52,20 @@ namespace RavelTek.Disrupt
                 {
                 }
             };
+        }
+        private void Ping()
+        {
+            Task.Run(async () =>
+            {
+                while (Socket != null)
+                {
+                    foreach (var client in Exchange.Peers.Values)
+                    {
+                        client.SendUpdate();
+                    }
+                    await Task.Delay(1);
+                }
+            });            
         }
         public void Dispose()
         {

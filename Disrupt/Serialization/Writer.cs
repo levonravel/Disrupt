@@ -199,10 +199,14 @@ namespace RavelTek.Disrupt.Serializers
             return this;
         }
         public Writer Add(string value)
-        {
+        {            
             var data = encoder.GetBytes(value);
-            converter.GetBytes(packet, data.Length);
             CheckPayLoadSize(data.Length);
+            if(data.Length > 512)
+            {
+                Console.WriteLine("bIGGER");
+            }
+            converter.GetBytes(packet, data.Length);            
             foreach(var i in data)
             {
                 converter.GetBytes(packet, i);

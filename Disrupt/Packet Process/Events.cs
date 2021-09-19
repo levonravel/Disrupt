@@ -13,7 +13,6 @@ namespace RavelTek.Disrupt
         public delegate void NatSuccess(Packet packet);
         public delegate void LanDiscoveryClient(Packet packet);
         public delegate void LanDiscoveryHost(Packet packet);
-        public delegate void PacketUpdate(Packet packet);
         public delegate void HostList(Packet packet);
         public delegate void HostSuccess();
         public delegate void AddRequested(Packet packet);
@@ -22,7 +21,6 @@ namespace RavelTek.Disrupt
         public event Message OnIncomingMessage;
         public event LanDiscoveryClient OnDiscoveryClient;
         public event LanDiscoveryHost OnDiscoveryHost;
-        public event PacketUpdate OnPacketUpdate;
         public event HostList OnHostList;
         public event HostSuccess OnHostSuccess;
         public event AddRequested OnAddRequest;
@@ -35,15 +33,6 @@ namespace RavelTek.Disrupt
         public Events(DisruptClient client)
         {
             this.client = client;
-        }
-        public void RaiseEventPacketUpdate(Packet packet)
-        {
-            if (OnPacketUpdate == null) return;
-            lock (it) EventCollection.Enqueue(() =>
-             {
-                 OnPacketUpdate(packet);
-                 client.Exchange.RecyclePacket(packet);
-             });
         }
         public void RaiseEventDisconnect(Packet packet)
         {
