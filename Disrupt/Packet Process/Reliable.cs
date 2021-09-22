@@ -23,8 +23,7 @@ namespace RavelTek.Disrupt
             base.ReceiveReady(packet);
             if(packet.Flag == Flags.PacketUpdate)
             {
-                Client.Exchange.Peers[packet.Address].PacketUpdate(packet);
-                Client.Exchange.RecyclePacket(packet);
+                Client.Exchange.Peers[packet.Address].Confirmation(packet);
                 return;
             }
             Client.Exchange.Peers[packet.Address].Receive(packet);
@@ -47,7 +46,7 @@ namespace RavelTek.Disrupt
                         {
                             i.TrySend();
                         }
-                        await Task.Delay(100);
+                        await Task.Delay(1);
                     }catch (Exception e)
                     {
                         UnityEngine.Debug.LogError(e);

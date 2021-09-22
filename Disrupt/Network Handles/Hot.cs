@@ -20,7 +20,7 @@ namespace RavelTek.Disrupt
             Exchange.Peers.Add(destination, new PeerContainer(client, destination)); //remove if add was denied
             var packet = Exchange.CreatePacket();
             packet.Flag = Flags.Conn;
-            Exchange.Send(packet, Protocol.Sequenced, destination);
+            Exchange.Send(packet, Protocol.Reliable, destination);
         }
         public void RequestAdd(string address, int port, DisruptClient client)
         {
@@ -28,12 +28,14 @@ namespace RavelTek.Disrupt
             Exchange.Peers.Add(destination, new PeerContainer(client, destination)); //Remove if add was denied
             var packet = Exchange.CreatePacket();
             packet.Flag = Flags.Conn;
-            Exchange.Send(packet, Protocol.Sequenced, destination);
+            Exchange.Send(packet, Protocol.Reliable, destination);
         }
         public void DenyRequest() { }
-        public void AddConnection(EndPoint destination, DisruptClient client)
+        public bool AddConnection(EndPoint destination, DisruptClient client)
         {
+            if (Exchange.Peers.ContainsKey(destination)) return false;
             Exchange.Peers.Add(destination, new PeerContainer(client, destination));
+            return true;
         }
         public void FindLanMatches() 
         {

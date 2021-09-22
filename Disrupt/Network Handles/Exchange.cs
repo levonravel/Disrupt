@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -35,7 +36,13 @@ namespace RavelTek.Disrupt
         }
         public void SendRaw(Packet packet)
         {
-            socket.SendTo(packet.Payload, packet.CurrentIndex, SocketFlags.None, packet.Address);
+            try
+            {
+                socket.SendTo(packet.Payload, packet.CurrentIndex, SocketFlags.None, packet.Address);
+            }catch(Exception e)
+            {
+                UnityEngine.Debug.Log(e);
+            }
         }
         public void Send(Packet packet, Protocol protocol, string destination, int port)
         {

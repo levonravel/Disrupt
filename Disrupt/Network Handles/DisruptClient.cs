@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -42,9 +43,8 @@ namespace RavelTek.Disrupt
                     var packet = Exchange.CreatePacket();
                     packet.Length = Socket.ReceiveFrom(packet.Payload, 0, 512, SocketFlags.None, ref packet.Address);
                     if (packet.Flag == Flags.Conn)
-                    {                        
-                        Events.RaiseEventAddRequest(packet);
-                        continue;
+                    {
+                        Exchange.Peers.Add(packet.Address, new PeerContainer(this, packet.Address));
                     }
                     Exchange.ReceivePacket(packet);
                 }
@@ -59,11 +59,17 @@ namespace RavelTek.Disrupt
             {
                 while (Socket != null)
                 {
-                    foreach (var client in Exchange.Peers.Values)
+                    try
                     {
-                        client.SendUpdate();
+                        foreach (var client in Exchange.Peers.Values)
+                        {
+                            client.Acknowledge();
+                        }                        
+                    }catch(Exception e)
+                    {
+                        UnityEngine.Debug.Log(e);
                     }
-                    await Task.Delay(1);
+                    await Task.Delay(500);
                 }
             });            
         }
