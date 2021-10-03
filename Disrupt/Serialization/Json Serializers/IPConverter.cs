@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Net;
 
-namespace RavelTek.Disrupt.Custom_Serializers
+namespace RavelNet
 {
     class IPConverter : JsonConverter
     {

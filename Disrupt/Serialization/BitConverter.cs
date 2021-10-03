@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RavelTek.Disrupt.Serializers
+namespace RavelNet
 {
     public class BitConverter
     {

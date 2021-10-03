@@ -1,35 +1,27 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
-namespace RavelTek.Disrupt
+namespace RavelNet
 {
-    public class FragmentProcess
+    public sealed class Fragmenter 
     {
-        public Queue<Packet> Awaited = new Queue<Packet>();
-        public DisruptClient Client;
+        private readonly Queue<Packet> awaited = new Queue<Packet>();
+        private readonly Queue<Packet> fragments = new Queue<Packet>();        
         private const int fragmentLimit = 511;
-        private Queue<Packet> fragments = new Queue<Packet>();
 
-        public FragmentProcess(DisruptClient client)
-        {
-            Client = client;
-        }
-        public void ConstructPacket(Packet packet)
+        public Packet ConstructPacket(Packet packet)
         {
             if(packet.Fragmented == Fragment.Begin)
             {
                 fragments.Enqueue(packet);
-                return;
+                return null;
             }
             else if(fragments.Count == 0)
             {
-                Client.Events.RaiseEventData(packet);
-                return;
+                return packet;
             }
             fragments.Enqueue(packet);
-            var constructed = Client.Exchange.CreatePacket();
+            var constructed = new Packet();
             var offset = fragmentLimit - 3;
             constructed.Payload = new byte[fragments.Count * (offset) + 3];
             constructed.CurrentIndex = 3;
@@ -44,14 +36,13 @@ namespace RavelTek.Disrupt
                     constructed.CurrentIndex = 3;
                 }
             }
-            Client.Events.RaiseEventData(constructed);
+            return constructed;
         }
-        public void ShouldFragment(Packet packet)
+        public Packet ShouldFragment(Packet packet)
         {
             if (packet.CurrentIndex <= fragmentLimit)
             {
-                Awaited.Enqueue(packet);
-                return;
+                return packet;
             }
             var needed = (int)Math.Ceiling((double)(packet.CurrentIndex - 3) / (fragmentLimit - 3));
             var totalPayload = packet.CurrentIndex;
@@ -59,16 +50,17 @@ namespace RavelTek.Disrupt
             for (int i = 0; i < needed; i++)
             {
                 var lastFrag = i + 1 == needed;
-                Packet frag = Client.Exchange.Pool.CreateObject();
+                Packet frag = new Packet();
                 frag.Protocol = packet.Protocol;
                 frag.Flag = packet.Flag;
                 var copyStartIndex = i * (fragmentLimit - 3);
                 var copyLength = lastFrag ? endAmount : fragmentLimit - 3;
                 frag.CurrentIndex = lastFrag ? copyLength : fragmentLimit;
                 FastCopy(packet.Payload, i == 0 ? 3 : copyStartIndex + 3, frag.Payload, 3, copyLength);
-                frag.Fragmented = lastFrag ? Fragment.End : Fragment.Begin;                
-                Awaited.Enqueue(frag);
+                frag.Fragmented = lastFrag ? Fragment.End : Fragment.Begin;
+                return frag;
             }
+            return null;
         }
         private unsafe void FastCopy(byte[] src, int src_offset, byte[] dst, int dst_offset, int length)
         {

@@ -1,4 +1,4 @@
-﻿namespace RavelTek.Disrupt
+﻿namespace RavelNet
 {
     [System.Serializable]
     public enum Protocol

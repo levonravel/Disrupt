@@ -1,14 +1,14 @@
-﻿namespace RavelTek.Disrupt
+﻿namespace RavelNet
 {
     public enum Flags
     {
         None,
         NatReq,
         NatIntro,
-        PacketUpdate,
+        UPD,
         Dat,
-        Dscvr,
-        Conn,
+        Dc,
+        Con,
         NatHost,
         HostList,
     }

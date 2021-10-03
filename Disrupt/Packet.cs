@@ -1,19 +1,14 @@
-using System;
+﻿using System;
 using System.Net;
 
-namespace RavelTek.Disrupt
+namespace RavelNet
 {
-    [System.Serializable]
     public class Packet
     {
-        public const int HeaderSize = 3;
-        public static int count = 0;
         public EndPoint Address = new IPEndPoint(IPAddress.Any, 0);
-        public bool SingleSend;
         public byte[] Payload = new byte[512];
         public int Length;
-        public int CurrentIndex = HeaderSize;
-        public string lastUsage;
+        public int CurrentIndex = 3;
 
         public Fragment Fragmented
         {
@@ -81,13 +76,12 @@ namespace RavelTek.Disrupt
             }
         }
         public void Reset()
-        { 
+        {
+            Flag = Flags.None;
+            CurrentIndex = 3;
             Payload[0] = 0;
             Payload[1] = 0;
-            Payload[2] = 0;
-            Flag = Flags.None;
-            CurrentIndex = HeaderSize;
-            SingleSend = false;
+            Payload[2] = 0;            
         }
         public Packet Clone(Packet hardcopy)
         {

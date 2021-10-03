@@ -2,7 +2,7 @@
 using System;
 using System.Net;
 
-namespace RavelTek.Disrupt.Custom_Serializers
+namespace RavelNet
 {
     class AddressConverter : JsonConverter
     {

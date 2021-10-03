@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace RavelTek.Disrupt.Custom_Serializers
+namespace RavelNet
 {
     public class JsonSettings
     {

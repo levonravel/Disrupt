@@ -1,10 +1,8 @@
 ﻿using Newtonsoft.Json;
-using RavelTek.Disrupt.Custom_Serializers;
 using System;
-using System.Collections.Generic;
 using System.Text;
 
-namespace RavelTek.Disrupt.Serializers
+namespace RavelNet
 {
     public partial class Writer
     {
@@ -202,10 +200,6 @@ namespace RavelTek.Disrupt.Serializers
         {            
             var data = encoder.GetBytes(value);
             CheckPayLoadSize(data.Length);
-            if(data.Length > 512)
-            {
-                Console.WriteLine("bIGGER");
-            }
             converter.GetBytes(packet, data.Length);            
             foreach(var i in data)
             {

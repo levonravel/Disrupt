@@ -1,40 +1,20 @@
 ﻿using Newtonsoft.Json;
-using RavelTek.Disrupt.Custom_Serializers;
 using System;
 using System.Text;
 
-namespace RavelTek.Disrupt.Serializers
+namespace RavelNet
 {
 public partial class Reader
     {
         private readonly BitConverter converter = new BitConverter();
         private readonly Encoding encoding = new ASCIIEncoding();
         private UTF8Encoding encoder = new UTF8Encoding();
-        /// <summary>
-        /// Used for Unity3ds Plugin 
-        /// Everything uses Generics so this was needed to get the type
-        /// for the return
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="packet"></param>
-        /// <returns></returns>
-        public object PullObject(Type type, Packet packet)
-        {
-            string clear = null;
-            try
-            {
-                clear = PullString(packet);
-                return JsonConvert.DeserializeObject(clear, type, JsonSettings.Instance.Settings);
-            }catch(Exception e)
-            {               
-                return null;
-            }
-        }
-        public T PullObject<T>(Packet packet)
+
+        public T Object<T>(Packet packet)
         {
             try
             {
-                var clear = PullString(packet);
+                var clear = String(packet);
                 return JsonConvert.DeserializeObject<T>(clear, JsonSettings.Instance.Settings);
             }
             catch (Exception e)
@@ -42,12 +22,12 @@ public partial class Reader
                 return default(T);
             }
         }
-        public string PullString(Packet packet)
+        public string String(Packet packet)
         {
             var stringLen = 0;
             try
             {
-                stringLen = PullInt(packet);                
+                stringLen = Int(packet);                
                 var eString = encoder.GetString(packet.Payload, packet.CurrentIndex, stringLen);
                 packet.CurrentIndex += stringLen;
                 return eString;
@@ -57,28 +37,28 @@ public partial class Reader
                 return null;
             }
         }
-        public string[] PullStringArray(Packet packet)
+        public string[] StringArray(Packet packet)
         {
-            var count = PullInt(packet);
+            var count = Int(packet);
             var values = new string[count];
             for(int i = 0; i < count; i++)
             {
-                var stringLen = PullInt(packet);                
+                var stringLen = Int(packet);                
                 var eString = encoder.GetString(packet.Payload, packet.CurrentIndex, stringLen);
                 packet.CurrentIndex += stringLen;
                 values[i] = eString;
             }
             return values;
         }
-        public bool PullBool(Packet packet)
+        public bool Bool(Packet packet)
         {            
             var value = packet.Payload[packet.CurrentIndex];
             packet.CurrentIndex++;
             return value == 1;
         }
-        public bool[] PullBoolArray(Packet packet)
+        public bool[] BoolArray(Packet packet)
         {
-            var count = PullInt(packet);
+            var count = Int(packet);
             var values = new bool[count];
             for (int i = 0; i < count; i++)
             {
@@ -88,14 +68,14 @@ public partial class Reader
             }
             return values;
         }
-        public sbyte PullSByte(Packet packet)
+        public sbyte SByte(Packet packet)
         {
             var data = converter.ToSByte(packet);
             return data;
         }
-        public sbyte[] PullSbyteArray(Packet packet)
+        public sbyte[] SbyteArray(Packet packet)
         {
-            var count = PullInt(packet);
+            var count = Int(packet);
             var values = new sbyte[count];
             for (int i = 0; i < count; i++)
             {
@@ -103,14 +83,14 @@ public partial class Reader
             }
             return values;
         }
-        public byte PullByte(Packet packet)
+        public byte Byte(Packet packet)
         {
             var value = converter.ToByte(packet);
             return value;
         }
-        public byte[] PullByteArray(Packet packet)
+        public byte[] ByteArray(Packet packet)
         {
-            var count = PullInt(packet);
+            var count = Int(packet);
             var values = new byte[count];
             for (int i = 0; i < count; i++)
             {
@@ -118,13 +98,13 @@ public partial class Reader
             }
             return values;
         }
-        public short PullShort(Packet packet)
+        public short Short(Packet packet)
         {            
             return converter.ToShort(packet);
         }
-        public short[] PullShortArray(Packet packet)
+        public short[] ShortArray(Packet packet)
         {
-            var count = PullInt(packet);
+            var count = Int(packet);
             var values = new short[count];
             for (int i = 0; i < count; i++)
             {
@@ -132,13 +112,13 @@ public partial class Reader
             }
             return values;
         }
-        public int PullInt(Packet packet)
+        public int Int(Packet packet)
         {
             return converter.ToInt(packet);
         }
-        public int[] PullIntArray(Packet packet)
+        public int[] IntArray(Packet packet)
         {
-            var count = PullInt(packet);
+            var count = Int(packet);
             var values = new int[count];
             for (int i = 0; i < count; i++)
             {
@@ -146,13 +126,13 @@ public partial class Reader
             }
             return values;
         }
-        public long PullLong(Packet packet)
+        public long Long(Packet packet)
         {
             return converter.ToLong(packet);
         }
-        public long[] PullLongArray(Packet packet)
+        public long[] LongArray(Packet packet)
         {
-            var count = PullInt(packet);
+            var count = Int(packet);
             var values = new long[count];
             for (int i = 0; i < count; i++)
             {
@@ -160,13 +140,13 @@ public partial class Reader
             }
             return values;
         }
-        public ushort PullUShort(Packet packet)
+        public ushort UShort(Packet packet)
         {
             return converter.ToUShort(packet);
         }
-        public ushort[] PullUShortArray(Packet packet)
+        public ushort[] UShortArray(Packet packet)
         {
-            var count = PullInt(packet);
+            var count = Int(packet);
             var values = new ushort[count];
             for (int i = 0; i < count; i++)
             {
@@ -174,13 +154,13 @@ public partial class Reader
             }
             return values;
         }
-        public uint PullUInt(Packet packet)
+        public uint UInt(Packet packet)
         {
             return converter.ToUInt(packet);
         }
-        public uint[] PullUIntArray(Packet packet)
+        public uint[] UIntArray(Packet packet)
         {
-            var count = PullInt(packet);
+            var count = Int(packet);
             var values = new uint[count];
             for (int i = 0; i < count; i++)
             {
@@ -188,13 +168,13 @@ public partial class Reader
             }
             return values;
         }
-        public ulong PullULong(Packet packet)
+        public ulong ULong(Packet packet)
         {
             return converter.ToULong(packet);
         }
-        public ulong[] PullULongArray(Packet packet)
+        public ulong[] ULongArray(Packet packet)
         {
-            var count = PullInt(packet);
+            var count = Int(packet);
             var values = new ulong[count];
             for (int i = 0; i < count; i++)
             {
@@ -202,13 +182,13 @@ public partial class Reader
             }
             return values;
         }
-        public char PullChar(Packet packet)
+        public char Char(Packet packet)
         {
             return converter.ToChar(packet);
         }
-        public char[] PullCharArray(Packet packet)
+        public char[] CharArray(Packet packet)
         {
-            var count = PullInt(packet);
+            var count = Int(packet);
             var values = new char[count];
             for (int i = 0; i < count; i++)
             {
@@ -216,13 +196,13 @@ public partial class Reader
             }
             return values;
         }
-        public float PullFloat(Packet packet)
+        public float Float(Packet packet)
         {
             return converter.ToFloat(packet);
         }
-        public float[] PullFloatArray(Packet packet)
+        public float[] FloatArray(Packet packet)
         {
-            var count = PullInt(packet);
+            var count = Int(packet);
             var values = new float[count];
             for (int i = 0; i < count; i++)
             {
@@ -230,13 +210,13 @@ public partial class Reader
             }
             return values;
         }
-        public decimal PullDecimal(Packet packet)
+        public decimal Decimal(Packet packet)
         {
             return converter.ToDecimal(packet);
         }
-        public decimal[] PullDecimalArray(Packet packet)
+        public decimal[] DecimalArray(Packet packet)
         {
-            var count = PullInt(packet);
+            var count = Int(packet);
             var values = new decimal[count];
             for (int i = 0; i < count; i++)
             {
@@ -244,13 +224,13 @@ public partial class Reader
             }
             return values;
         }
-        public double PullDouble(Packet packet)
+        public double Double(Packet packet)
         {
             return converter.ToDouble(packet);
         }
-        public double[] PullDoubleArray(Packet packet)
+        public double[] DoubleArray(Packet packet)
         {
-            var count = PullInt(packet);
+            var count = Int(packet);
             var values = new double[count];
             for (int i = 0; i < count; i++)
             {
