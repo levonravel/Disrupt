@@ -19,7 +19,7 @@ public partial class Reader
             }
             catch (Exception e)
             {
-                return default(T);
+                throw new Exception(e.ToString() + "line 13 method Object<T> class Reader.cs");
             }
         }
         public string String(Packet packet)
@@ -34,7 +34,7 @@ public partial class Reader
             }
             catch(Exception e)
             {
-                return null;
+                throw new Exception(e.ToString() + "line 25 method String class Reader.cs");
             }
         }
         public string[] StringArray(Packet packet)

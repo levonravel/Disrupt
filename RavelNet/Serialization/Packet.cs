@@ -1,4 +1,12 @@
-﻿using System;
+﻿/*
+ * All rights reserved by RavelTek / Levon Marcus Ravel 2012 - Present
+ *
+ *Dependencies
+ *      None
+ *Class Information
+ *      This container stores data dealing with serialization, it is the main source when sending or recieving through buffers
+ */
+using System;
 using System.Net;
 
 namespace RavelNet
@@ -8,7 +16,7 @@ namespace RavelNet
         public EndPoint Address = new IPEndPoint(IPAddress.Any, 0);
         public byte[] Payload = new byte[512];
         public int Length;
-        public int CurrentIndex = 3;
+        public int CurrentIndex = 7;
 
         public Fragment Fragmented
         {
@@ -37,7 +45,7 @@ namespace RavelNet
             get
             {
                 if (Protocol != Protocol.Reliable)
-                    throw new Exception("Reliable Buffer Flag being read from non reliable packet");
+                    throw new Exception("line 43 method ReliableBufferFlag being read from non reliable packet, class Packet.cs");
                 return Payload[2] == 1;
             }
             set

@@ -228,6 +228,10 @@ namespace RavelNet
             ObjectToBytePayLoad(value);
             return this;
         }
+        public void PackMethod(int value)
+        {
+            converter.PackMethod(packet, value);
+        }
         private void ObjectToBytePayLoad<T>(T obj)
         {
             try

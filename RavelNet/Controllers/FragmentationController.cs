@@ -1,33 +1,29 @@
 using System;
-using System.Collections.Generic;
 
 namespace RavelNet
 {
-    public sealed class Fragmenter 
+    public sealed class FragmentationController 
     {
-        private readonly Queue<Packet> awaited = new Queue<Packet>();
-        private readonly Queue<Packet> fragments = new Queue<Packet>();        
         private const int fragmentLimit = 511;
 
-        public Packet ConstructPacket(Packet packet)
+        public void ConstructPacket(Packet packet, Peer peer)
         {
-            if(packet.Fragmented == Fragment.Begin)
+            if (packet.Fragmented == Fragment.Begin)
             {
-                fragments.Enqueue(packet);
-                return null;
+                peer.FragmentPackets.Enqueue(packet);
             }
-            else if(fragments.Count == 0)
+            else if (peer.FragmentPackets.Count == 0)
             {
-                return packet;
+                peer.Enqueue(packet, Protocol.Reliable, TransportLayer.Inbound);
             }
-            fragments.Enqueue(packet);
+            peer.FragmentPackets.Enqueue(packet);
             var constructed = new Packet();
             var offset = fragmentLimit - 3;
-            constructed.Payload = new byte[fragments.Count * (offset) + 3];
+            constructed.Payload = new byte[peer.FragmentPackets.Count * (offset) + 3];
             constructed.CurrentIndex = 3;
-            for(int i = fragments.Count; i > 0; i--)
+            for(int i = peer.FragmentPackets.Count; i > 0; i--)
             {
-                var fragPacket = fragments.Dequeue();
+                var fragPacket = peer.FragmentPackets.Dequeue();
                 FastCopy(fragPacket.Payload, 3, constructed.Payload, constructed.CurrentIndex, offset);
                 constructed.CurrentIndex += offset;
                 if (i == 1)
@@ -36,12 +32,13 @@ namespace RavelNet
                     constructed.CurrentIndex = 3;
                 }
             }
-            return constructed;
+            peer.Enqueue(constructed, Protocol.Reliable, TransportLayer.Inbound);
         }
-        public Packet ShouldFragment(Packet packet)
+        public Packet ShouldFragment(Packet packet, Peer peer)
         {
             if (packet.CurrentIndex <= fragmentLimit)
             {
+                AssignId(packet, peer);                
                 return packet;
             }
             var needed = (int)Math.Ceiling((double)(packet.CurrentIndex - 3) / (fragmentLimit - 3));
@@ -50,17 +47,25 @@ namespace RavelNet
             for (int i = 0; i < needed; i++)
             {
                 var lastFrag = i + 1 == needed;
-                Packet frag = new Packet();
-                frag.Protocol = packet.Protocol;
-                frag.Flag = packet.Flag;
+                Packet frag = new Packet
+                {
+                    Protocol = packet.Protocol,
+                    Flag = packet.Flag
+                };
                 var copyStartIndex = i * (fragmentLimit - 3);
                 var copyLength = lastFrag ? endAmount : fragmentLimit - 3;
                 frag.CurrentIndex = lastFrag ? copyLength : fragmentLimit;
                 FastCopy(packet.Payload, i == 0 ? 3 : copyStartIndex + 3, frag.Payload, 3, copyLength);
                 frag.Fragmented = lastFrag ? Fragment.End : Fragment.Begin;
-                return frag;
+                AssignId(packet, peer);
+                peer.Enqueue(frag, Protocol.Reliable, TransportLayer.Outbound);
             }
             return null;
+        }
+        private void AssignId(Packet packet, Peer peer)
+        {
+            packet.Id = peer.ReliableOutIndex;
+            peer.ReliableOutIndex++;
         }
         private unsafe void FastCopy(byte[] src, int src_offset, byte[] dst, int dst_offset, int length)
         {

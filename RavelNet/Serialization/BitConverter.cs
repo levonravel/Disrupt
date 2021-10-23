@@ -73,11 +73,15 @@ namespace RavelNet
                 *((ulong*)b) = *&value;
             packet.CurrentIndex += 8;
         }
+        public unsafe void PackMethod(Packet packet, int value)
+        {
+            fixed (byte* b = &packet.Payload[3])
+                *((int*)b) = *&value;
+        }
         ////////////////////////////////////////////////////////////////
         //////////                FROM BYTES                ////////////
         ////////////////////////////////////////////////////////////////
-        ///[X,X, 1,2,3,4,5,6,7]
-        ///      2 3 4 5 6 7 8
+
         public unsafe byte ToByte(Packet packet)
         {
             fixed (byte* ptr = &packet.Payload[packet.CurrentIndex])
