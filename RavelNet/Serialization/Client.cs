@@ -19,7 +19,10 @@ namespace RavelNet
     {
         public IPEndPoint Address;
         private Socket socket;
-        private ProcessPacketController packetProcessor;
+        private CommunicationController communicationController;
+        private readonly SequencedController sequencedLayer;
+        private readonly ReliableController reliableLayer;
+        private readonly PeerCollection peerCollection;
 
         public Client(string applicationName, int port)
         {
@@ -30,7 +33,7 @@ namespace RavelNet
             socket.DontFragment = true;
             socket.EnableBroadcast = true;
             socket.Bind(Address);
-            packetProcessor = new ProcessPacketController(socket, new CommunicationController(socket, this), new PeerCollection());
+            communicationController = new CommunicationController(socket, this);
             var listenerThread = new Thread(Listen)
             {
                 IsBackground = true
@@ -45,13 +48,58 @@ namespace RavelNet
                 {
                     var packet = new Packet();
                     packet.Length = socket.ReceiveFrom(packet.Payload, 0, 512, SocketFlags.None, ref packet.Address);
-                    packetProcessor.PreprocessPacket(packet);
+                    PreprocessPacket(packet);
                 }
                 catch (Exception e)
                 {
-                    throw new Exception(e.ToString() + " line 40 in method Listener, class Listener.cs");
+                    throw new Exception(e.ToString() + " line 55 in method Listener, class Listener.cs");
                 }
             };
+        }
+        public void PreprocessPacket(Packet packet)
+        {
+            if (packet.Flag == Flags.Con)
+            {
+                TryAddPeer(packet.Address);
+            }
+            Peer peer = peerCollection.GetPeer(packet.Address);
+            peer.Enqueue(packet, packet.Protocol, TransportLayer.Inbound);
+        }
+        public void Poll()
+        {
+            foreach(var peer in peerCollection.GetPeers)
+            {
+                Packet reliable = peer.Dequeue(Protocol.Reliable, TransportLayer.Inbound);
+                Packet sequenced = peer.Dequeue(Protocol.Sequenced, TransportLayer.Inbound);
+                if (reliable != null)
+                {
+                    var result = reliableLayer.TryReceive(peer);
+                    if (result == null) return;
+                    communicationController.Acknowledge(peer);
+                    Receive(result, peer);
+                }
+                if (sequenced != null)
+                {
+                    var result = sequencedLayer.TryReceive(sequenced, peer);
+                    Receive(result, peer);
+                }
+            }
+        }
+        private void Events_OnDisconnect(EndPoint address)
+        {
+            peerCollection.Remove(address);
+        }
+        private void Events_OnOutboundConnection(string address, int port)
+        {
+            var destination = new IPEndPoint(IPAddress.Parse(address), port));
+            var peer = peerCollection.Add(destination);
+            var packet = new Packet();
+            packet.Flag = Flags.Con;
+            peer.Enqueue(packet, Protocol.Reliable, TransportLayer.Outbound);
+        }
+        private void TryAddPeer(EndPoint address)
+        {
+            peerCollection.Add(address);
         }
         public void Dispose()
         {

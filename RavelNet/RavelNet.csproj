@@ -55,7 +55,6 @@
     <Compile Include="Controllers\NetworkController.cs" />
     <Compile Include="Collections\MethodTracker.cs" />
     <Compile Include="Collections\PeerCollection.cs" />
-    <Compile Include="Controllers\ProcessPacketController.cs" />
     <Compile Include="Events\RavelNetEvents.cs" />
     <Compile Include="Serialization\Client.cs" />
     <Compile Include="Serialization\Packet.cs" />

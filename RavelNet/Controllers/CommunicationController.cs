@@ -12,7 +12,6 @@
  *      The main communication between the application and peers over the network
  */
 using System;
-using System.Net;
 using System.Net.Sockets;
 
 namespace RavelNet
@@ -21,7 +20,6 @@ namespace RavelNet
     {
         private readonly Writer writer = new Writer();
         private readonly Socket socket;
-        private readonly PeerCollection peerCollection;
         private readonly ReliableController reliableController;
         private readonly SequencedController sequencedController;
         private MethodTracker methodTracker = new MethodTracker();
@@ -29,15 +27,13 @@ namespace RavelNet
         public CommunicationController(Socket socket, RavelNetEvents events)
         {
             this.socket = socket;
-            peerCollection = new PeerCollection();
             reliableController = new ReliableController();
             sequencedController = new SequencedController();
-            events.OnOutboundConnection += Events_OnOutboundConnection;
             events.OnSend += Events_OnSend;
-            events.OnDisconnect += Events_OnDisconnect;
             events.OnMethodTracked += Events_OnMethodTracked;
             events.OnReceive += Events_OnReceive;
         }
+
 
         private void Events_OnReceive(Packet packet, Peer peer)
         {
@@ -47,23 +43,11 @@ namespace RavelNet
         {
             methodTracker.AddMethods(methods);
         }
-        private void Events_OnDisconnect(EndPoint address)
-        {
-            peerCollection.Remove(address);
-        }
         private void Events_OnSend(Packet packet, Protocol protocol, Peer peer, string method)
         {
             var methodId = methodTracker.GetMethodId(method);
             writer.Open(packet).PackMethod(methodId);
             peer.Enqueue(packet, protocol, TransportLayer.Outbound);
-        }
-        private void Events_OnOutboundConnection(string address, int port)
-        {
-            var destination = new IPEndPoint(IPAddress.Parse(address), port));
-            var peer = peerCollection.Add(destination);
-            var packet = new Packet();
-            packet.Flag = Flags.Con;
-            peer.Enqueue(packet, Protocol.Reliable, TransportLayer.Outbound);
         }
 
 
