@@ -56,6 +56,7 @@
     <Compile Include="Collections\MethodTracker.cs" />
     <Compile Include="Collections\PeerCollection.cs" />
     <Compile Include="Events\RavelNetEvents.cs" />
+    <Compile Include="ExampleClasses\UserInformation.cs" />
     <Compile Include="Serialization\Client.cs" />
     <Compile Include="Serialization\Packet.cs" />
     <Compile Include="Collections\Peer.cs" />

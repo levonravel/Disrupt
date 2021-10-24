@@ -22,9 +22,9 @@ namespace RavelNet
         public bool IsConnected;        
         public bool[] ReceivedFlags = new bool[maxIndex];
         public Queue<Packet> FragmentPackets = new Queue<Packet>();
-        private Dictionary<Protocol, Queue<Packet>> outbound = new Dictionary<Protocol, Queue<Packet>>()
+        private readonly Dictionary<Protocol, Queue<Packet>> outbound = new Dictionary<Protocol, Queue<Packet>>()
         { { Protocol.Reliable, new Queue<Packet>()}, {Protocol.Sequenced, new Queue<Packet>()}};
-        private Dictionary<Protocol, Queue<Packet>> inbound = new Dictionary<Protocol, Queue<Packet>>()
+        private readonly Dictionary<Protocol, Queue<Packet>> inbound = new Dictionary<Protocol, Queue<Packet>>()
         { { Protocol.Reliable, new Queue<Packet>()}, {Protocol.Sequenced, new Queue<Packet>()}};
         public Packet[] SendBuffer = new Packet[maxIndex];
         public Packet[] ReceiveBuffer = new Packet[maxIndex];
@@ -88,7 +88,7 @@ namespace RavelNet
                 GetCollection(layer).TryGetValue(protocol, out Queue<Packet> packets);
                 if (packets.Count > 0)
                 {
-                    Console.WriteLine($"Dequeue protocol {protocol} layer {layer}");
+                    Console.WriteLine($"Dequeue protocol {protocol} layer {layer} address {Address}");
                     return packets.Dequeue();
                 }
             }

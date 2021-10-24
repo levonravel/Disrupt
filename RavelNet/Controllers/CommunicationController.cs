@@ -58,11 +58,10 @@ namespace RavelNet
             packet.Flag = Flags.UPD;
             peer.Enqueue(packet, Protocol.Sequenced, TransportLayer.Outbound);
         }
-        public void TrySend(Peer peer, Packet packet = null)
+        public void TrySend(Peer peer)
         {
             TrySendReliable(peer);
-            if (packet == null) return;
-            TrySendSequenced(peer, packet);
+            TrySendSequenced(peer);
         }
         private void TrySendReliable(Peer peer)
         {            
@@ -71,9 +70,9 @@ namespace RavelNet
             Send(packet);
 
         }
-        private void TrySendSequenced(Peer peer, Packet packet)
+        private void TrySendSequenced(Peer peer)
         {
-            packet = sequencedController.TrySend(packet, peer);
+            var packet = sequencedController.TrySend(peer);
             if (packet == null) return;
             Send(packet);
         }

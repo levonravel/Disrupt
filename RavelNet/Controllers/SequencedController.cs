@@ -14,8 +14,10 @@ namespace RavelNet
 {
     public class SequencedController
     {
-        public Packet TrySend(Packet packet, Peer peer)
-        {            
+        public Packet TrySend(Peer peer)
+        {
+            var packet = peer.Dequeue(Protocol.Sequenced, TransportLayer.Outbound);
+            if (packet == null) return null;
             packet.Id = peer.SequencedOutIndex;
             return packet;
         }

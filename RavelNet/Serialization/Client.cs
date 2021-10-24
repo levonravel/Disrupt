@@ -58,6 +58,7 @@ namespace RavelNet
                 {
                     var packet = new Packet();
                     packet.Length = socket.ReceiveFrom(packet.Payload, 0, 512, SocketFlags.None, ref packet.Address);
+                    packet.CurrentIndex = 3;//need to read the methodpacking
                     PreprocessPacket(packet);
                 }
                 catch (Exception e)
@@ -77,7 +78,6 @@ namespace RavelNet
         }
         public void Poll(string clientName)
         {
-            Console.WriteLine($"{clientName} is polling");
             foreach (var peer in peerCollection.GetPeers)
             {
                 var result = reliableLayer.TryReceive(peer);
@@ -115,8 +115,7 @@ namespace RavelNet
             var packet = new Packet();
             packet.Flag = Flags.Con;
             packet.Address = destination;
-            communicationController.TrySend(peer, packet);
-            //peer.Enqueue(packet, Protocol.Sequenced, TransportLayer.Outbound);
+            peer.Enqueue(packet, Protocol.Sequenced, TransportLayer.Outbound);
         }
         private void TryAddPeer(EndPoint address)
         {
