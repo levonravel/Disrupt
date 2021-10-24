@@ -12,37 +12,47 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace RavelNet
 {
     public class Client : RavelNetEvents
     {
-        public IPEndPoint Address;
+        public bool IsAlive;
+        private IPEndPoint address;
         private Socket socket;
-        private CommunicationController communicationController;
-        private readonly SequencedController sequencedLayer;
-        private readonly ReliableController reliableLayer;
-        private readonly PeerCollection peerCollection;
+        private readonly CommunicationController communicationController;
+        private readonly SequencedController sequencedLayer = new SequencedController();
+        private readonly ReliableController reliableLayer = new ReliableController();
+        private readonly PeerCollection peerCollection = new PeerCollection();
 
         public Client(string applicationName, int port)
         {
+            IsAlive = true;
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            Address = new IPEndPoint(IPAddress.Any, port);
+            address = new IPEndPoint(IPAddress.Any, port);
             socket.ReceiveBufferSize = int.MaxValue;
             socket.SendBufferSize = int.MaxValue;
             socket.DontFragment = true;
             socket.EnableBroadcast = true;
-            socket.Bind(Address);
+            socket.Bind(address);
             communicationController = new CommunicationController(socket, this);
             var listenerThread = new Thread(Listen)
             {
                 IsBackground = true
             };
             listenerThread.Start();
+            var outgoingThread = new Thread(OutgoingLoop)
+            {
+                IsBackground = true
+            };
+            outgoingThread.Start();
         }
         private void Listen()
         {
-            while (socket != null)
+            OnOutboundConnection += Events_OnOutboundConnection;
+            OnDisconnect += Events_OnDisconnect;
+            while (IsAlive)
             {
                 try
                 {
@@ -65,25 +75,34 @@ namespace RavelNet
             Peer peer = peerCollection.GetPeer(packet.Address);
             peer.Enqueue(packet, packet.Protocol, TransportLayer.Inbound);
         }
-        public void Poll()
+        public void Poll(string clientName)
         {
-            foreach(var peer in peerCollection.GetPeers)
+            Console.WriteLine($"{clientName} is polling");
+            foreach (var peer in peerCollection.GetPeers)
             {
-                Packet reliable = peer.Dequeue(Protocol.Reliable, TransportLayer.Inbound);
-                Packet sequenced = peer.Dequeue(Protocol.Sequenced, TransportLayer.Inbound);
-                if (reliable != null)
+                var result = reliableLayer.TryReceive(peer);
+                if (result != null)
                 {
-                    var result = reliableLayer.TryReceive(peer);
-                    if (result == null) return;
                     communicationController.Acknowledge(peer);
-                    Receive(result, peer);
                 }
-                if (sequenced != null)
-                {
-                    var result = sequencedLayer.TryReceive(sequenced, peer);
-                    Receive(result, peer);
-                }
+                Receive(result, peer);
+                result = sequencedLayer.TryReceive(peer);
+                Receive(result, peer);
             }
+        }
+        private void OutgoingLoop()
+        {
+            Task.Run(async () =>
+            {
+                while (IsAlive)
+                {
+                    await Task.Delay(10);
+                    foreach (var peer in peerCollection.GetPeers)
+                    {
+                        communicationController.TrySend(peer);
+                    }
+                }
+            });
         }
         private void Events_OnDisconnect(EndPoint address)
         {
@@ -91,11 +110,13 @@ namespace RavelNet
         }
         private void Events_OnOutboundConnection(string address, int port)
         {
-            var destination = new IPEndPoint(IPAddress.Parse(address), port));
+            var destination = new IPEndPoint(IPAddress.Parse(address), port);
             var peer = peerCollection.Add(destination);
             var packet = new Packet();
             packet.Flag = Flags.Con;
-            peer.Enqueue(packet, Protocol.Reliable, TransportLayer.Outbound);
+            packet.Address = destination;
+            communicationController.TrySend(peer, packet);
+            //peer.Enqueue(packet, Protocol.Sequenced, TransportLayer.Outbound);
         }
         private void TryAddPeer(EndPoint address)
         {
@@ -105,6 +126,7 @@ namespace RavelNet
         {
             socket.Dispose();
             socket = null;
+            IsAlive = false;
         }
     }
 }

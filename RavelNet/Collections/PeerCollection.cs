@@ -11,7 +11,7 @@ namespace RavelNet
         public Peer Add(EndPoint address)
         {
             if (peers.ContainsKey(address)) return null;
-            peers.Add(address, new Peer());
+            peers.Add(address, new Peer(address));
             return peers[address];
         }
         public void Remove(EndPoint address)

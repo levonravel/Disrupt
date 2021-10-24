@@ -28,6 +28,12 @@ namespace RavelNet
 
         public void Receive(Packet packet, Peer peer)
         {
+            if (packet == null) return;
+            if(packet.Flag == Flags.Con)
+            {
+                InboundConnection(peer);
+                return;
+            }
             OnReceive?.Invoke(packet, peer);
         }
         public void Send(Packet packet, Protocol protocol, Peer peer, string receivingMethod)

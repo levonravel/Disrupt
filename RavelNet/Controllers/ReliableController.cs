@@ -10,6 +10,8 @@
  *      Analyzes sent data through or over the wire, if its above the maxlimit bytes the controller fragments or constucts given packet
  *      Also ensures a window aspect and requires a signature to process reliably
  */
+using System;
+
 namespace RavelNet
 {
     public class ReliableController
@@ -19,7 +21,7 @@ namespace RavelNet
         public Packet TryReceive(Peer peer)
         {
             var id = peer.Peek(Protocol.Reliable, TransportLayer.Inbound);
-            if (peer.ReceiveBuffer[id] != null) return null;
+            if (id == -1 || peer.ReceiveBuffer[id] != null) return null;
             Packet packet = peer.Dequeue(Protocol.Reliable, TransportLayer.Inbound);
             peer.ReceiveBuffer[packet.Id] = packet;
             peer.ReceivedBits |= 1 << packet.Id;
@@ -27,9 +29,9 @@ namespace RavelNet
             return packet;
         }
         public Packet TrySend(Peer peer)
-        {
+        {            
             var id = peer.Peek(Protocol.Reliable, TransportLayer.Outbound);
-            if (peer.SendBuffer[id] != null) return null;
+            if (id == -1 || peer.SendBuffer[id] != null) return null;
             Packet packet = peer.Dequeue(Protocol.Reliable, TransportLayer.Outbound);
             var fragPacket = fragmentationController.ShouldFragment(packet, peer);
             if (fragPacket == null) return null;

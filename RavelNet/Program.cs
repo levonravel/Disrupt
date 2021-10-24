@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RavelNet
 {
@@ -11,12 +13,42 @@ namespace RavelNet
 
         static void Main(string[] args)
         {
+            //start server
+            var server = new Client("test", 35005);
+            RegisterEvents(server);
+            ServerStartPolling();
+
+
             client = new Client("test", 0);
             client.TrackMethods(Response, UserInformation);
             RegisterEvents(client);
-            client.Connect("127.0.0.1", 35005);    
-        }
+            ClientStartPolling();
+            client.Connect("127.0.0.1", 35005);
 
+            while (Console.ReadKey().Key != ConsoleKey.Escape) { Thread.Sleep(100);  };
+        }
+        static void ClientStartPolling()
+        {
+            Task.Run(async () =>
+            {
+                while (client.IsAlive)
+                {
+                    await Task.Delay(100);
+                    client.Poll("client");
+                }
+            });
+        }
+        static void ServerStartPolling()
+        {
+            Task.Run(async () =>
+            {
+                while (client.IsAlive)
+                {
+                    await Task.Delay(100);
+                    client.Poll("server");
+                }
+            });
+        }
         static void RegisterEvents(RavelNetEvents events)
         {
             events.OnInboundConnection += Events_OnInboundConnection;

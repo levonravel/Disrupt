@@ -8,6 +8,8 @@
  *      Analyzes the data from the wire and ensures the most recent packet is processed
  */
 
+using System;
+
 namespace RavelNet
 {
     public class SequencedController
@@ -17,9 +19,11 @@ namespace RavelNet
             packet.Id = peer.SequencedOutIndex;
             return packet;
         }
-        public Packet TryReceive(Packet packet, Peer peer)
+        public Packet TryReceive(Peer peer)
         {
-            if (LatestPacket(peer.SequencedInIndex, packet.Id))
+            var packet = peer.Dequeue(Protocol.Sequenced, TransportLayer.Inbound);            
+            if (packet == null) return null;
+            if (packet.Id == 0 || LatestPacket(peer.SequencedInIndex, packet.Id))
             {
                 peer.SequencedInIndex = packet.Id;
                 return packet;

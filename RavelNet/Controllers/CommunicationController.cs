@@ -13,6 +13,7 @@
  */
 using System;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace RavelNet
 {
@@ -48,9 +49,7 @@ namespace RavelNet
             var methodId = methodTracker.GetMethodId(method);
             writer.Open(packet).PackMethod(methodId);
             peer.Enqueue(packet, protocol, TransportLayer.Outbound);
-        }
-
-
+        }        
         public void Acknowledge(Peer peer)
         {
             var packet = new Packet();
@@ -62,6 +61,7 @@ namespace RavelNet
         public void TrySend(Peer peer, Packet packet = null)
         {
             TrySendReliable(peer);
+            if (packet == null) return;
             TrySendSequenced(peer, packet);
         }
         private void TrySendReliable(Peer peer)
@@ -75,6 +75,7 @@ namespace RavelNet
         {
             packet = sequencedController.TrySend(packet, peer);
             if (packet == null) return;
+            Send(packet);
         }
         private void Send(Packet packet)
         {
