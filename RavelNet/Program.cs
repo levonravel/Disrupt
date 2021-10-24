@@ -66,7 +66,7 @@ namespace RavelNet
         {
             var packet = new Packet();
             writer.Open(packet).Add("Hello World");
-            client.Send(packet, Protocol.Reliable, peer, nameof(Response));
+            client.Send(packet, Protocol.Sequenced, peer, nameof(Response));
 
             var infoPacket = new Packet();            
             var userInfo = new UserInformation();
