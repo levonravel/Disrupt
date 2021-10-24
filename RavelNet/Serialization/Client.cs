@@ -58,7 +58,11 @@ namespace RavelNet
                 {
                     var packet = new Packet();
                     packet.Length = socket.ReceiveFrom(packet.Payload, 0, 512, SocketFlags.None, ref packet.Address);
-                    packet.CurrentIndex = 3;//method pack is 4 bytes so revert back to 3
+                    if(packet.Flag != Flags.UPD)
+                    {
+                        //Adjust for method packed 
+                        packet.CurrentIndex = 3;
+                    }
                     PreprocessPacket(packet);
                 }
                 catch (Exception e)
@@ -83,16 +87,19 @@ namespace RavelNet
                 var result = reliableLayer.TryReceive(peer);
                 if (result != null)
                 {
-                    //this is a UPD packet contains Acked information
-                    if(result.Flag == Flags.UPD)
-                    {
-                        communicationController.Confirmation(result, peer);
-                        continue;
-                    }
                     communicationController.Acknowledge(peer);
+                    //update peers receive buffer
+                    reliableLayer.UpdateReceiverLowerBound(peer);
                 }
                 Receive(result, peer);
                 result = sequencedLayer.TryReceive(peer);
+                //this is a UPD packet contains Acked information
+                if (result == null) continue;
+                if (result.Flag == Flags.UPD)
+                {
+                    communicationController.Confirmation(result, peer);
+                    continue;
+                }
                 Receive(result, peer);
             }
         }
@@ -102,7 +109,7 @@ namespace RavelNet
             {
                 while (IsAlive)
                 {
-                    await Task.Delay(10);
+                    await Task.Delay(1);
                     try
                     {
                         foreach (var peer in peerCollection.GetPeers)

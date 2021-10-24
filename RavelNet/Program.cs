@@ -20,7 +20,7 @@ namespace RavelNet
             RegisterEvents(server);
             ServerStartPolling();
 
-
+            //start a client
             client = new Client("test", 0);
             client.TrackMethods(Response, UserInformation);
             RegisterEvents(client);
@@ -35,7 +35,7 @@ namespace RavelNet
             {
                 while (client.IsAlive)
                 {
-                    await Task.Delay(100);
+                    await Task.Delay(1);
                     client.Poll("client");
                 }
             });
@@ -46,7 +46,7 @@ namespace RavelNet
             {
                 while (client.IsAlive)
                 {
-                    await Task.Delay(100);
+                    await Task.Delay(1);
                     server.Poll("server");
                 }
             });
@@ -66,7 +66,7 @@ namespace RavelNet
         {
             var packet = new Packet();
             writer.Open(packet).Add("Hello World");
-            client.Send(packet, Protocol.Sequenced, peer, nameof(Response));
+            client.Send(packet, Protocol.Reliable, peer, nameof(Response));
 
             var infoPacket = new Packet();            
             var userInfo = new UserInformation();
@@ -82,7 +82,7 @@ namespace RavelNet
                 .Add("Top of the day")
                 .Add(12345)
                 .Add(0.5185F);
-            client.Send(infoPacket, Protocol.Sequenced, peer, nameof(UserInformation));
+            client.Send(infoPacket, Protocol.Reliable, peer, nameof(UserInformation));
         }
 
         static public void Response(Packet packet, Peer peer)

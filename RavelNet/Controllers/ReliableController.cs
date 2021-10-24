@@ -39,10 +39,9 @@ namespace RavelNet
             }
             peer.ReceivedBits += 1 << packet.Id;
             peer.ReceiveBuffer[packet.Id] = packet;
-            UpdateReceiverLowerBound(peer);
             return packet;
         }
-        private void UpdateReceiverLowerBound(Peer peer)
+        public void UpdateReceiverLowerBound(Peer peer)
         {
             var oldLowerBound = peer.ReceivedLowerBound;
             // If buffer is -1, all pending packets have been received

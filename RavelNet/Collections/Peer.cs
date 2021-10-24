@@ -78,7 +78,6 @@ namespace RavelNet
             packet.Address = Address;
             lock (collectionLock)
             {
-                Console.WriteLine($"Enqueue protocol {protocol} layer {layer} address {Address}");
                 GetCollection(layer)[packet.Protocol].Enqueue(packet);
             }
         }
@@ -89,7 +88,6 @@ namespace RavelNet
                 GetCollection(layer).TryGetValue(protocol, out Queue<Packet> packets);
                 if (packets.Count > 0)
                 {
-                    Console.WriteLine($"Dequeue protocol {protocol} layer {layer} address {Address}");
                     return packets.Dequeue();
                 }
             }
@@ -101,7 +99,6 @@ namespace RavelNet
             if (collection.Count > 0)
             {
                 var id = collection.Peek().Id;
-                Console.WriteLine($"Peeking {protocol} at {layer} with id {id}");
                 return id;
             }
             return -1;

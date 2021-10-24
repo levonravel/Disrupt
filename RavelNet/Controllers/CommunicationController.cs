@@ -58,7 +58,9 @@ namespace RavelNet
             writer.Open(packet)
                 .Add(peer.ReceivedBits);
             packet.Flag = Flags.UPD;
-            peer.Enqueue(packet, Protocol.Sequenced, TransportLayer.Outbound);
+            packet.Protocol = Protocol.Sequenced;
+            packet.Address = peer.Address;
+            Send(packet);
         }
         public void TrySend(Peer peer)
         {
