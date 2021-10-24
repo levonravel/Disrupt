@@ -30,7 +30,7 @@ namespace RavelNet
 
         public Packet TryReceive(Peer peer)
         {
-            var packet = peer.Dequeue(Protocol.Reliable, TransportLayer.Inbound);
+            var packet = peer.Dequeue(Protocol.Reliable, CollectionType.Inbound);
             if (packet == null) return null;
             var expectedFlag = peer.ReceivedFlags[packet.Id];
             if (packet.ReliableBufferFlag != expectedFlag)
@@ -53,7 +53,7 @@ namespace RavelNet
             if (allReceived)
             {
                 peer.ReceivedBits = 0;
-                for (int i = 0; i < 32; i++)
+                for (int i = 0; i < 400; i++)
                 {
                     var index = (peer.ReceivedLowerBound + i) % 31;
 
@@ -104,7 +104,7 @@ namespace RavelNet
             {                
                 var index = (peer.SendLowerBound + i) % 31;
                 if (peer.SendBuffer[index] != null) continue;
-                var packet = peer.Dequeue(Protocol.Reliable, TransportLayer.Outbound);
+                var packet = peer.Dequeue(Protocol.Reliable, CollectionType.Outbound);
                 if (packet == null) break;
                 packet.Id = (byte)index;
                 packet.ReliableBufferFlag = peer.SendFlags[index];

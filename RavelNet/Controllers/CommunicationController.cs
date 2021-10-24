@@ -23,8 +23,8 @@ namespace RavelNet
         private readonly Writer writer = new Writer();
         private readonly Reader reader = new Reader();
         private readonly Socket socket;
-        private readonly ReliableController reliableController;
-        private readonly SequencedController sequencedController;
+        private readonly SequencedController sequencedController = new SequencedController();
+        private readonly ReliableController reliableController = new ReliableController();
         private MethodTracker methodTracker = new MethodTracker();
 
         public CommunicationController(Socket socket, RavelNetEvents events)
@@ -50,7 +50,7 @@ namespace RavelNet
         {
             var methodId = methodTracker.GetMethodId(method);
             writer.Open(packet).PackMethod(methodId);
-            peer.Enqueue(packet, protocol, TransportLayer.Outbound);
+            peer.Enqueue(packet, protocol, CollectionType.Outbound);
         }        
         public void Acknowledge(Peer peer)
         {

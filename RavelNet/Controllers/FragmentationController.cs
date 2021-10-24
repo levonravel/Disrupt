@@ -14,7 +14,7 @@ namespace RavelNet
             }
             else if (peer.FragmentPackets.Count == 0)
             {
-                peer.Enqueue(packet, Protocol.Reliable, TransportLayer.Inbound);
+                peer.Enqueue(packet, Protocol.Reliable, CollectionType.Inbound);
             }
             peer.FragmentPackets.Enqueue(packet);
             var constructed = new Packet();
@@ -32,7 +32,7 @@ namespace RavelNet
                     constructed.CurrentIndex = 3;
                 }
             }
-            peer.Enqueue(constructed, Protocol.Reliable, TransportLayer.Inbound);
+            peer.Enqueue(constructed, Protocol.Reliable, CollectionType.Inbound);
         }
         public Packet ShouldFragment(Packet packet, Peer peer)
         {
@@ -58,7 +58,7 @@ namespace RavelNet
                 FastCopy(packet.Payload, i == 0 ? 3 : copyStartIndex + 3, frag.Payload, 3, copyLength);
                 frag.Fragmented = lastFrag ? Fragment.End : Fragment.Begin;
                 AssignId(packet, peer);
-                peer.Enqueue(frag, Protocol.Reliable, TransportLayer.Outbound);
+                peer.Enqueue(frag, Protocol.Reliable, CollectionType.Outbound);
             }
             return null;
         }

@@ -47,10 +47,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\ProcessingController.cs" />
     <Compile Include="Enums\Flags.cs" />
     <Compile Include="Enums\Fragment.cs" />
     <Compile Include="Enums\Protocol.cs" />
-    <Compile Include="Enums\TransportLayer.cs" />
+    <Compile Include="Enums\CollectionType.cs" />
     <Compile Include="Controllers\FragmentationController.cs" />
     <Compile Include="Controllers\NetworkController.cs" />
     <Compile Include="Collections\MethodTracker.cs" />

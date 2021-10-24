@@ -9,9 +9,9 @@
  */
 namespace RavelNet
 {
-    public enum TransportLayer
+    public enum CollectionType
     {
         Inbound,
-        Outbound
+        Outbound,
     }
 }

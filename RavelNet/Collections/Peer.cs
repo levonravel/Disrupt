@@ -72,7 +72,7 @@ namespace RavelNet
         }
 
 
-        public void Enqueue(Packet packet, Protocol protocol, TransportLayer layer)
+        public void Enqueue(Packet packet, Protocol protocol, CollectionType layer)
         {
             packet.Protocol = protocol;
             packet.Address = Address;
@@ -81,7 +81,7 @@ namespace RavelNet
                 GetCollection(layer)[packet.Protocol].Enqueue(packet);
             }
         }
-        public Packet Dequeue(Protocol protocol, TransportLayer layer)
+        public Packet Dequeue(Protocol protocol, CollectionType layer)
         {            
             lock (collectionLock)
             {
@@ -93,7 +93,7 @@ namespace RavelNet
             }
             return null;
         }
-        public int Peek(Protocol protocol, TransportLayer layer)
+        public int PeekId(Protocol protocol, CollectionType layer)
         {
             var collection = GetCollection(layer)[protocol];
             if (collection.Count > 0)
@@ -103,9 +103,13 @@ namespace RavelNet
             }
             return -1;
         }
-        private Dictionary<Protocol, Queue<Packet>> GetCollection(TransportLayer layer)
+        public bool CanIterate(Protocol protocol, CollectionType layer)
         {
-            return layer == TransportLayer.Inbound ? inbound : outbound;
+            return GetCollection(layer)[protocol].Count > 0;
+        }
+        private Dictionary<Protocol, Queue<Packet>> GetCollection(CollectionType layer)
+        {
+            return layer == CollectionType.Inbound ? inbound : outbound;
         }
     }
 }

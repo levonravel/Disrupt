@@ -16,14 +16,14 @@ namespace RavelNet
     {
         public Packet TrySend(Peer peer)
         {
-            var packet = peer.Dequeue(Protocol.Sequenced, TransportLayer.Outbound);
+            var packet = peer.Dequeue(Protocol.Sequenced, CollectionType.Outbound);
             if (packet == null) return null;
             packet.Id = peer.SequencedOutIndex;
             return packet;
         }
         public Packet TryReceive(Peer peer)
         {
-            var packet = peer.Dequeue(Protocol.Sequenced, TransportLayer.Inbound);            
+            var packet = peer.Dequeue(Protocol.Sequenced, CollectionType.Inbound);            
             if (packet == null) return null;
             if (packet.Id == 0 || LatestPacket(peer.SequencedInIndex, packet.Id))
             {
