@@ -12,6 +12,7 @@
  *      The main communication between the application and peers over the network
  */
 using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
@@ -20,6 +21,7 @@ namespace RavelNet
     public class CommunicationController
     {
         private readonly Writer writer = new Writer();
+        private readonly Reader reader = new Reader();
         private readonly Socket socket;
         private readonly ReliableController reliableController;
         private readonly SequencedController sequencedController;
@@ -65,10 +67,12 @@ namespace RavelNet
         }
         private void TrySendReliable(Peer peer)
         {            
-            Packet packet = reliableController.TrySend(peer);            
-            if (packet == null) return;
-            Send(packet);
-
+            List<Packet> packets = reliableController.TrySend(peer);            
+            if (packets == null) return;
+            foreach (var packet in packets)
+            {
+                Send(packet);
+            }
         }
         private void TrySendSequenced(Peer peer)
         {
@@ -87,6 +91,51 @@ namespace RavelNet
             {
                 packet.Flag = Flags.Dat;
             }
+        }
+        public void Confirmation(Packet packet, Peer peer)
+        {
+            peer.SendBits = reader.Int(packet);
+            UpdateSenderLowerBound(peer);
+        }
+        void UpdateSenderLowerBound(Peer peer)
+        {
+            var oldLowerBound = peer.SendLowerBound;
+            // If buffer is -1, all pending packets have been received
+            var allReceived = peer.SendBits == -1;
+            // If ALL received, there is no new lower bound
+            if (!allReceived)
+                peer.SendLowerBound = FindLowerBound(oldLowerBound, peer.SendBits);
+
+            if (allReceived)
+            {
+                peer.SendBits = 0;
+                for (int i = 0; i < 32; i++)
+                {
+                    peer.SendBuffer[i] = null;
+                    peer.SendFlags[i] = !peer.SendFlags[i];
+                }
+            }
+            else if (oldLowerBound != peer.SendLowerBound)
+            {
+                for (int i = oldLowerBound; i != peer.SendLowerBound; i = (i + 1) % 31)
+                {
+                    peer.SendBuffer[i] = null;
+                    peer.SendFlags[i] = !peer.SendFlags[i];
+                }
+            }
+        }
+
+        private static int FindLowerBound(int currentLowerBound, int buffer)
+        {
+            // Loops 32 times, starting from current _lowerBound (IMPORTANT)
+            for (int i = 0; i < 32; i++)
+            {
+                var index = (currentLowerBound + i) % 31;
+
+                if ((buffer & (1 << index)) != 0) continue;
+                return (byte)index;
+            }
+            return currentLowerBound;
         }
     }
 }

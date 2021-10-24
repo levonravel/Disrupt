@@ -16,11 +16,12 @@ namespace RavelNet
     public class Peer 
     {
         public EndPoint Address;
-        public int ReceivedBits, ReceivedLowerBound;
+        public int ReceivedBits, ReceivedLowerBound, SendLowerBound, SendBits;
         private byte sequencedOutIndex, sequencedInIndex, reliableOutIndex;
         private const byte maxIndex = 31;
-        public bool IsConnected;        
+        public bool IsConnected;
         public bool[] ReceivedFlags = new bool[maxIndex];
+        public bool[] SendFlags = new bool[maxIndex];
         public Queue<Packet> FragmentPackets = new Queue<Packet>();
         private readonly Dictionary<Protocol, Queue<Packet>> outbound = new Dictionary<Protocol, Queue<Packet>>()
         { { Protocol.Reliable, new Queue<Packet>()}, {Protocol.Sequenced, new Queue<Packet>()}};
@@ -96,9 +97,12 @@ namespace RavelNet
         }
         public int Peek(Protocol protocol, TransportLayer layer)
         {
-            if (GetCollection(layer)[protocol].Count > 0)
+            var collection = GetCollection(layer)[protocol];
+            if (collection.Count > 0)
             {
-                return inbound[protocol].Peek().Id;
+                var id = collection.Peek().Id;
+                Console.WriteLine($"Peeking {protocol} at {layer} with id {id}");
+                return id;
             }
             return -1;
         }
