@@ -1,3 +1,4 @@
-*.meta
-*.pem
-TestEnvironment/obj/
+BenchmarkNet\obj\Debug
+BenchmarkNet\.idea
+BenchmarkNet\bin
+Debug
