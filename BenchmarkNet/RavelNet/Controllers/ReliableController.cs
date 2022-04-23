@@ -28,12 +28,10 @@ namespace RavelNet
 
         public void TryReceive(Peer peer, Client client, Packet packet)
         {
-            //check if receiving bitfield needs to be reset
             if(packet.Id == 0 && peer.ReceivedBitfield == -1)
             {
                 peer.ReceivedBitfield = 0;
             }
-            //check if we already recieved this data
             if ((peer.ReceivedBitfield & (1 << packet.Id)) == 1) return;    
             peer.ReceivedBitfield |= (1 << packet.Id);
             if (packet.Flag == Flags.Con)

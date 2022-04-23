@@ -56,7 +56,7 @@ namespace RavelNet
         {
             peer.LastSeenPing = DateTime.UtcNow;
             //cycle through the bitfield and remove the packets from the peers SentPackets
-            var bitfield = reader.Int(packet);
+            var bitfield = reader.GetInt(packet);
             for(int i = packet.Id; i > 0; i--)
             {
                 if ((bitfield & (1 << i)) == 0 && peer.SentPackets[i] != null)
